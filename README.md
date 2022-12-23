@@ -63,7 +63,7 @@ poetry run task mypy
 To run the full test suite, including Mypy, run: 
 
 ```bash
-poetry run task test
+poetry run task tests
 ```
 
 Alternatively, you can run just the unit tests, starting with the failing tests and exiting after
