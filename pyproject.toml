@@ -61,7 +61,7 @@ check_format = "pytest -v --black --flake8 --isort -m 'black or flake8 or isort'
 format = "black . && flake8 . && isort . && black -l 80 notebooks/*pct.py"
 
 [tool.mypy]
-files = "experiments,uanets,tests"
+files = "experiments,trieste,scripts,uanets,tests"
 ignore_missing_imports = true
 warn_redundant_casts = true
 warn_unused_ignores = true
