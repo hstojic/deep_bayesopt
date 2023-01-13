@@ -37,7 +37,7 @@ gpflux = "^0.3.1"
 gpflow = "^2.6.3"
 ray = "^2.2.0"
 Hydra = "^2.5"
-
+matplotlib = "^3.5.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^5.0.0"
