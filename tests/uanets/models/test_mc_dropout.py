@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Union
 
-import gpflow
 import numpy as np
 import numpy.testing as npt
 import pytest
 import tensorflow as tf
-import tensorflow_probability as tfp
-
 from tensorflow.python.framework.errors_impl import InvalidArgumentError
+
 from tests.util.misc import inputs_outputs_spec
 from uanets.models import MonteCarloDropout
 
@@ -62,7 +60,7 @@ def test_dropout_network_build_seems_correct(
     model = MonteCarloDropout(inputs, outputs, hidden_layer_args, rate)
 
     if not isinstance(rate, list):
-        rate = [rate for _ in range(num_hidden_layers + 1)]
+        rate_all_layers = [rate for _ in range(num_hidden_layers + 1)]
 
     # basics
     assert isinstance(model, tf.keras.Model)
@@ -80,14 +78,14 @@ def test_dropout_network_build_seems_correct(
     for i, layer in enumerate(model.layers[0].layers):
         if i % 2 == 0:
             isinstance(layer, tf.keras.layers.Dropout)
-            layer.rate == rate[int(i / 2)]
+            layer.rate == rate_all_layers[int(i / 2)]
         elif i % 2 == 1:
             isinstance(layer, tf.keras.layers.Dense)
             assert layer.units == units
             assert layer.activation == activation or layer.activation.__name__ == activation
 
     assert isinstance(model.layers[1].layers[0], tf.keras.layers.Dropout)
-    assert model.layers[1].layers[0].rate == rate[-1]
+    assert model.layers[1].layers[0].rate == rate_all_layers[-1]
 
     assert isinstance(model.layers[1].layers[-1], tf.keras.layers.Dense)
     assert model.layers[1].layers[-1].units == int(np.prod(outputs.shape[1:]))
@@ -114,7 +112,7 @@ def test_dropout_network_can_dropout() -> None:
 
     outputs = [model(tf.constant([[1.0]]), training=True) for _ in range(100)]
     npt.assert_almost_equal(
-        0.0, np.mean(outputs), err_msg=f"MonteCarloDropout not dropping up to randomness"
+        0.0, np.mean(outputs), err_msg="MonteCarloDropout not dropping up to randomness"
     )
 
 

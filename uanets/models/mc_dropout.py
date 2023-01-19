@@ -16,7 +16,6 @@ from typing import Any, Dict, Sequence
 
 import numpy as np
 import tensorflow as tf
-import tensorflow_probability as tfp
 
 
 class MonteCarloDropout(tf.keras.Model):
@@ -51,10 +50,10 @@ class MonteCarloDropout(tf.keras.Model):
             :class:`~tf.keras.layers.Dense` layers with :class:`~tf.keras.layers.Dropout` layers
             added before each :class:`~tf.keras.layers.Dense` layer. Length of this sequence
             determines the number of hidden layers in the network. Default value is five hidden
-            layers, 300 nodes each, with ReLu activation functions. Empty sequence needs to be passed
-            to have no hidden layers.
-        :param rate: Probability of dropout assigned to each `~tf.keras.layers.Dropout` layer. By default
-            a rate of 0.1 is used.
+            layers, 300 nodes each, with ReLu activation functions. Empty sequence needs to be
+            passed to have no hidden layers.
+        :param rate: Probability of dropout assigned to each `~tf.keras.layers.Dropout` layer.
+            By default a rate of 0.1 is used.
         :raise ValueError: If objects in ``hidden_layer_args`` are not dictionaries.
         """
         super().__init__()

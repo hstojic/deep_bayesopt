@@ -13,3 +13,7 @@
 # limitations under the License.
 
 from uanets.models.mc_dropout import MonteCarloDropout
+
+__all__ = [
+    "MonteCarloDropout",
+]

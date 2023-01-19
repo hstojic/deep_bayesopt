@@ -15,11 +15,10 @@
 import functools
 import os
 import random
-from typing import Any, Callable, Optional, TypeVar, cast, overload, Tuple, Union, Sequence
+from typing import Any, Callable, Optional, Sequence, Tuple, TypeVar, Union, cast, overload
 
 import numpy as np
 import tensorflow as tf
-
 
 ShapeLike = Union[tf.TensorShape, Sequence[int]]
 """ Type alias for types that can represent tensor shapes. """

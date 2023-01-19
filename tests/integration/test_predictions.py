@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-import tensorflow as tf
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 from tests.util.misc import random_seed
 from tests.util.models import mc_dropout_model
-from uanets.models.mc_dropout import MonteCarloDropout
 
 
 def _power_function(x: tf.Tensor, error=True) -> tf.Tensor:
     """
-    A simple one-dimensional toy problem introduced by <cite data-cite="hernandez2015probabilistic"/>.
+    A simple one-dimensional toy problem introduced by
+    <cite data-cite="hernandez2015probabilistic"/>.
     The toy problem is a simple cubic function with some Normally distributed noise around it.
     """
     y = tf.pow(x, 3)

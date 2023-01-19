@@ -239,6 +239,21 @@ pycodestyle = ">=2.9.0,<2.10.0"
 pyflakes = ">=2.5.0,<2.6.0"
 
 [[package]]
+name = "flake8-pyproject"
+version = "1.2.2"
+description = "Flake8 plug-in loading the configuration from pyproject.toml"
+category = "dev"
+optional = false
+python-versions = ">= 3.6"
+
+[package.dependencies]
+Flake8 = ">=5"
+TOMLi = {version = "*", markers = "python_version < \"3.11\""}
+
+[package.extras]
+dev = ["pytest", "pytest-cov"]
+
+[[package]]
 name = "flatbuffers"
 version = "23.1.4"
 description = "The FlatBuffers serialization format for Python"
@@ -1476,7 +1491,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-co
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.7"
-content-hash = "e6de89f15d48e5afac9727b25e7ccbe98507391c3e7f72c947de9bdfe2c34114"
+content-hash = "a94be32977b871fcb83c3e83feb1b1ebbf9607e83838089733821b03d71b1c95"
 
 [metadata.files]
 absl-py = [
@@ -1733,6 +1748,9 @@ filelock = [
 flake8 = [
     {file = "flake8-5.0.4-py2.py3-none-any.whl", hash = "sha256:7a1cf6b73744f5806ab95e526f6f0d8c01c66d7bbe349562d22dfca20610b248"},
     {file = "flake8-5.0.4.tar.gz", hash = "sha256:6fbe320aad8d6b95cec8b8e47bc933004678dc63095be98528b7bdd2a9f510db"},
+]
+flake8-pyproject = [
+    {file = "flake8_pyproject-1.2.2-py3-none-any.whl", hash = "sha256:52d412219e7db6227faa654675b1435947b11d49b453f3eced760f19bdd6f06a"},
 ]
 flatbuffers = [
     {file = "flatbuffers-23.1.4-py2.py3-none-any.whl", hash = "sha256:8bf47bcaef0deac76ae95586032e867e1d6d8fd429d00ca8d3d01e43fd3d1f8f"},
