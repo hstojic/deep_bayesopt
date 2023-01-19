@@ -17,6 +17,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from tests.util.misc import random_seed
+from tests.util.models import mc_dropout_model
 from uanets.models.mc_dropout import MonteCarloDropout
 
 
@@ -70,7 +71,7 @@ def _plot_training_loss(model: tf.keras.Model, name: str) -> None:
 
 @random_seed
 def test_mc_dropout_predictions_close_to_actuals(
-    max_error: float = 10.0,
+    max_error: float = 5.0,
     rate: float = 0.03,
 ) -> None:
     num_points = 20
@@ -79,12 +80,9 @@ def test_mc_dropout_predictions_close_to_actuals(
     inputs = tf.sort(tf.random.uniform(shape=[num_points, 1], minval=-4, maxval=4), 0)
     outputs = _power_function(inputs)
 
-    input_tensor_spec = tf.TensorSpec.from_tensor(inputs, name="input")
-    output_tensor_spec = tf.TensorSpec.from_tensor(outputs, name="output")
-
-    model = MonteCarloDropout(
-        input_tensor_spec=input_tensor_spec,
-        output_tensor_spec=output_tensor_spec,
+    model = mc_dropout_model(
+        inputs,
+        outputs,
         rate=rate,
     )
     model.build(inputs.shape)
