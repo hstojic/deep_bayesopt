@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uanets.models.mc_dropout import DropoutNetwork
+from uanets.models.mc_dropout import MonteCarloDropout

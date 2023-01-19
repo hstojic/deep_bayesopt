@@ -23,7 +23,7 @@ import tensorflow_probability as tfp
 
 from tensorflow.python.framework.errors_impl import InvalidArgumentError
 from tests.util.misc import inputs_outputs_spec
-from uanets.models import DropoutNetwork
+from uanets.models import MonteCarloDropout
 
 
 @pytest.fixture(name="num_hidden_layers", params=[0, 1, 3])
@@ -59,7 +59,7 @@ def test_dropout_network_build_seems_correct(
         {"units": units, "activation": activation} for _ in range(num_hidden_layers)
     ]
 
-    model = DropoutNetwork(inputs, outputs, hidden_layer_args, rate)
+    model = MonteCarloDropout(inputs, outputs, hidden_layer_args, rate)
 
     if not isinstance(rate, list):
         rate = [rate for _ in range(num_hidden_layers + 1)]
@@ -72,7 +72,7 @@ def test_dropout_network_build_seems_correct(
     assert model.compiled_metrics is None
     assert model.optimizer is None
 
-    # check correct number of layers and proerply constructed
+    # check the number of layers is correct and they are properly constructed
     assert len(model.layers) == 2
     assert len(model.layers[0].layers) == num_hidden_layers * 2
     assert len(model.layers[1].layers) == 2
@@ -97,7 +97,7 @@ def test_dropout_network_build_seems_correct(
 def test_dropout_network_can_be_compiled(input_shape: List[int], output_shape: List[int]) -> None:
     """Checks that dropout networks are compilable."""
     inputs, outputs = inputs_outputs_spec(input_shape, output_shape)
-    model = DropoutNetwork(inputs, outputs)
+    model = MonteCarloDropout(inputs, outputs)
     model.compile(tf.optimizers.Adam(), tf.losses.MeanSquaredError())
 
     assert model.compiled_loss is not None
@@ -109,12 +109,12 @@ def test_dropout_network_can_dropout() -> None:
     """Tests the ability of architecture to dropout."""
 
     inputs, outputs = inputs_outputs_spec([1], [1])
-    model = DropoutNetwork(inputs, outputs, rate=0.999999999)
+    model = MonteCarloDropout(inputs, outputs, rate=0.999999999)
     model.compile(tf.optimizers.Adam(), tf.losses.MeanSquaredError())
 
     outputs = [model(tf.constant([[1.0]]), training=True) for _ in range(100)]
     npt.assert_almost_equal(
-        0.0, np.mean(outputs), err_msg=f"DropoutNetwork not dropping up to randomness"
+        0.0, np.mean(outputs), err_msg=f"MonteCarloDropout not dropping up to randomness"
     )
 
 
@@ -123,7 +123,7 @@ def test_dropout_rate_raises_invalidargument_error(rate: float) -> None:
     """Tests that value error is raised when given wrong probability rates"""
     inputs, outputs = inputs_outputs_spec([1], [1])
     with pytest.raises(InvalidArgumentError):
-        DropoutNetwork(inputs, outputs, rate=rate)
+        MonteCarloDropout(inputs, outputs, rate=rate)
 
 
 @pytest.mark.parametrize("dtype", [tf.float32, tf.float64])
@@ -131,7 +131,7 @@ def test_dropout_network_dtype(dtype: tf.DType) -> None:
     """Tests that network can infer data type from the data"""
     x = tf.constant([[1]], dtype=tf.float16)
     inputs, outputs = tf.TensorSpec([1], dtype), tf.TensorSpec([1], dtype)
-    model = DropoutNetwork(inputs, outputs)
+    model = MonteCarloDropout(inputs, outputs)
 
     assert model(x).dtype == dtype
 
@@ -139,7 +139,7 @@ def test_dropout_network_dtype(dtype: tf.DType) -> None:
 def test_dropout_network_accepts_scalars() -> None:
     """Tests that network can handle scalar inputs with ndim = 1 instead of 2"""
     inputs, outputs = inputs_outputs_spec([1, 1], [1, 1])
-    model = DropoutNetwork(inputs, outputs)
+    model = MonteCarloDropout(inputs, outputs)
 
     test_points = tf.linspace(-1, 1, 100)
 

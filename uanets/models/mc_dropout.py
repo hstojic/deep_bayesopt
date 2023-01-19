@@ -19,7 +19,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 
-class DropoutNetwork(tf.keras.Model):
+class MonteCarloDropout(tf.keras.Model):
     """
     This class builds a standard dropout neural network using Keras. The network
     architecture is a multilayer fully-connected feed-forward network, with Dropout layers

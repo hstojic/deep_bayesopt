@@ -17,7 +17,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from tests.util.misc import random_seed
-from uanets.models.mc_dropout import DropoutNetwork
+from uanets.models.mc_dropout import MonteCarloDropout
 
 
 def _power_function(x: tf.Tensor, error=True) -> tf.Tensor:
@@ -34,19 +34,19 @@ def _power_function(x: tf.Tensor, error=True) -> tf.Tensor:
 def _plot_predictions(
     x: tf.Tensor, y: tf.Tensor, mu: tf.Tensor, sigma2: tf.Tensor, name: str
 ) -> None:
-    """plots 2 dimensional objective space with the front"""
-    plt.figure(figsize=(7, 5))
+    """plots data with predicted means and confidence interval"""
+    fig, ax = plt.subplots(figsize=(7, 5))
     # plot data
-    plt.scatter(x, y, marker="x", color="k", alpha=0.5)
+    ax.scatter(x, y, marker="x", color="k", alpha=0.5)
     # plot predictions
-    # lower = mu - tf.math.sqrt(sigma2)
-    # upper = mu + tf.math.sqrt(sigma2)
-    # plt.fill_between(tf.squeeze(x), tf.squeeze(lower), tf.squeeze(upper), color="C1", alpha=0.3)
-    plt.plot(x, mu, "C1")
+    lower = mu - tf.math.sqrt(sigma2)
+    upper = mu + tf.math.sqrt(sigma2)
+    ax.fill_between(tf.squeeze(x), tf.squeeze(lower), tf.squeeze(upper), color="C1", alpha=0.3)
+    ax.plot(x, mu, "C1")
     # styles and save
-    # plt.set_xlabel("Input")
-    # plt.set_ylabel("Output")
-    plt.title(f"Data and predictions: {name}")
+    ax.set_xlabel("Input")
+    ax.set_ylabel("Output")
+    ax.set_title(f"Data and predictions: {name}")
     plt.savefig(
         f"/tmp/test_predictions__model_predictions_{name}.png",
         bbox_inches="tight",
@@ -55,12 +55,12 @@ def _plot_predictions(
 
 
 def _plot_training_loss(model: tf.keras.Model, name: str) -> None:
-    """plots 2 dimensional objective space with the front"""
-    plt.figure(figsize=(7, 5))
-    plt.plot(model.history.history["loss"])
-    # plt.set_xlabel("Epoch")
-    # plt.set_ylabel("Loss")
-    plt.title(f"Training loss: {name}")
+    """plots training loss as a function of epochs"""
+    fig, ax = plt.subplots(figsize=(7, 5))
+    ax.plot(model.history.history["loss"])
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Loss")
+    ax.set_title(f"Training loss: {name}")
     plt.savefig(
         f"/tmp/test_predictions__training_loss_{name}.png",
         bbox_inches="tight",
@@ -76,13 +76,13 @@ def test_mc_dropout_predictions_close_to_actuals(
     num_points = 20
     num_passes = 100
 
-    inputs = tf.random.uniform(shape=[num_points, 1], minval=-4, maxval=4)
+    inputs = tf.sort(tf.random.uniform(shape=[num_points, 1], minval=-4, maxval=4), 0)
     outputs = _power_function(inputs)
 
     input_tensor_spec = tf.TensorSpec.from_tensor(inputs, name="input")
     output_tensor_spec = tf.TensorSpec.from_tensor(outputs, name="output")
 
-    model = DropoutNetwork(
+    model = MonteCarloDropout(
         input_tensor_spec=input_tensor_spec,
         output_tensor_spec=output_tensor_spec,
         rate=rate,
