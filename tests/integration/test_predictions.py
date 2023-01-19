@@ -34,7 +34,7 @@ def _power_function(x: tf.Tensor, error=True) -> tf.Tensor:
 def _plot_predictions(
     x: tf.Tensor, y: tf.Tensor, mu: tf.Tensor, sigma2: tf.Tensor, name: str
 ) -> None:
-    """ plots 2 dimensional objective space with the front"""
+    """plots 2 dimensional objective space with the front"""
     plt.figure(figsize=(7, 5))
     # plot data
     plt.scatter(x, y, marker="x", color="k", alpha=0.5)
@@ -48,14 +48,14 @@ def _plot_predictions(
     # plt.set_ylabel("Output")
     plt.title(f"Data and predictions: {name}")
     plt.savefig(
-        f"/tmp/test_predictions__model_predictions_{name}.png", bbox_inches="tight",
+        f"/tmp/test_predictions__model_predictions_{name}.png",
+        bbox_inches="tight",
     )
     plt.close()
 
 
-
 def _plot_training_loss(model: tf.keras.Model, name: str) -> None:
-    """ plots 2 dimensional objective space with the front"""
+    """plots 2 dimensional objective space with the front"""
     plt.figure(figsize=(7, 5))
     plt.plot(model.history.history["loss"])
     # plt.set_xlabel("Epoch")
@@ -70,7 +70,7 @@ def _plot_training_loss(model: tf.keras.Model, name: str) -> None:
 
 @random_seed
 def test_mc_dropout_predictions_close_to_actuals(
-    max_error: float = 10.,
+    max_error: float = 10.0,
     rate: float = 0.03,
 ) -> None:
     num_points = 20
@@ -80,7 +80,7 @@ def test_mc_dropout_predictions_close_to_actuals(
     outputs = _power_function(inputs)
 
     input_tensor_spec = tf.TensorSpec.from_tensor(inputs, name="input")
-    output_tensor_spec = tf.TensorSpec([1], outputs.dtype, name="output")
+    output_tensor_spec = tf.TensorSpec.from_tensor(outputs, name="output")
 
     model = DropoutNetwork(
         input_tensor_spec=input_tensor_spec,
@@ -98,9 +98,7 @@ def test_mc_dropout_predictions_close_to_actuals(
             tf.keras.callbacks.EarlyStopping(
                 monitor="loss", patience=100, restore_best_weights=True
             ),
-            tf.keras.callbacks.ReduceLROnPlateau(
-                monitor="loss", factor=0.3, patience=20
-            )
+            tf.keras.callbacks.ReduceLROnPlateau(monitor="loss", factor=0.3, patience=20),
         ],
     }
     loss = "mse"
@@ -112,9 +110,7 @@ def test_mc_dropout_predictions_close_to_actuals(
     )
     model.fit(x=inputs, y=outputs, **fit_args)
 
-    stochastic_passes = tf.stack(
-        [model(inputs, training=True) for _ in range(num_passes)], axis=0
-    )
+    stochastic_passes = tf.stack([model(inputs, training=True) for _ in range(num_passes)], axis=0)
     predicted_means = tf.math.reduce_mean(stochastic_passes, axis=0)
 
     predicted_vars = tf.subtract(

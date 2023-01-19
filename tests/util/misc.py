@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
-
 import functools
 import os
 import random
-from typing import Any, Callable, Optional, TypeVar, cast, overload
+from typing import Any, Callable, Optional, TypeVar, cast, overload, Tuple, Union, Sequence
 
 import numpy as np
 import tensorflow as tf
+
+
+ShapeLike = Union[tf.TensorShape, Sequence[int]]
+""" Type alias for types that can represent tensor shapes. """
 
 
 C = TypeVar("C", bound=Callable[..., object])
@@ -37,7 +39,7 @@ def random_seed(f_py: None = None, seed: int = 0) -> Callable[[C], C]:
     ...
 
 
-def random_seed(f_py: Optional[C] = None, seed: int = 0) -> Callable[[C], C] | C:
+def random_seed(f_py: Optional[C] = None, seed: int = 0) -> Union[Callable[[C], C], C]:
     """
     Decorates function ``f`` with TensorFlow, numpy and Python randomness seeds fixed to ``seed``.
     This decorator can be used without and with the ``seed`` parameter. When used with the default
@@ -84,3 +86,17 @@ def random_seed(f_py: Optional[C] = None, seed: int = 0) -> Callable[[C], C] | C
         return _decorator
     else:
         return _decorator(f_py)
+
+
+def inputs_outputs_spec(
+    inputs_shape: ShapeLike, outputs_shape: ShapeLike, dtype: tf.DType = tf.float64
+) -> Tuple[tf.Tensor, tf.Tensor]:
+    """
+    :param inputs_shape: The shape of an input without the first dimension.
+    :param outputs_shape: The shape of an output without the first dimension.
+    :param dtype: The dtype of the tensors.
+    :return: An empty dataset with points of the specified shapes, and dtype `tf.float64`.
+    """
+    inputs = tf.TensorSpec(tf.TensorShape([0]) + inputs_shape, dtype)
+    outputs = tf.TensorSpec(tf.TensorShape([0]) + outputs_shape, dtype)
+    return inputs, outputs
