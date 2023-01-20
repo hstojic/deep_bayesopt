@@ -30,11 +30,7 @@ class ApproximateBayesianModel(tf.keras.Model, ABC):
     @check_shapes(
         "x: [batch..., N, D]",
         "return[0]: [batch..., N, P]",
-        "return[0]: [batch..., N, P] if (num_samples is not None)",
-        "return[0]: [batch..., N, P] if (seed is not None)",
         "return[1]: [batch..., N, P]",
-        "return[1]: [batch..., N, P] if (num_samples is not None)",
-        "return[1]: [batch..., N, P] if (seed is not None)",
     )
     def predict_mean_and_var(
         self, x: tf.Tensor, num_samples: Optional[int] = None, seed: Optional[int] = None
@@ -74,10 +70,11 @@ class ApproximateBayesianModel(tf.keras.Model, ABC):
         self,
         x: tf.Tensor,
         num_samples: Optional[int] = None,
+        seed: Optional[int] = None,
     ) -> tf.Tensor:
         """
         Return ``num_samples`` samples from the independent marginal distributions at ``x``.
-        
+
         Models implementing this function should decorate the method with
         :meth:`~check_shapes.inherit_check_shapes`, so that check_shapes specified above are
         inherited.
@@ -89,5 +86,7 @@ class ApproximateBayesianModel(tf.keras.Model, ABC):
             If `None`, a single sample is drawn and the return shape is [..., N, P],
             for any positive integer the return shape contains an extra batch
             dimension, [..., S, N, P], with S = num_samples and P is the number of outputs.
+        :param seed:
+            Set the seed to produce deterministic results.
         """
         raise NotImplementedError
