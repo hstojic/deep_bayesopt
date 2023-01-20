@@ -18,28 +18,27 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 import tensorflow as tf
-
-from tests.util.misc import ShapeLike, empty_dataset, random_seed
-from tests.util.models.keras.models import (
-    trieste_deep_ensemble_model,
-    trieste_keras_ensemble_model,
-    trieste_mcdropout_model,
-    trieste_dropout_network_model,
-)
-from tests.util.models.models import fnc_2sin_x_over_3
 from trieste.data import Dataset
 from trieste.models import create_model
 from trieste.models.keras import (
     DeepEnsemble,
+    DropoutNetwork,
     KerasEnsemble,
     MonteCarloDropout,
-    DropoutNetwork,
     negative_log_likelihood,
     sample_with_replacement,
 )
-
 from trieste.models.keras.architectures import DropConnectNetwork
 from trieste.models.optimizer import KerasOptimizer, TrainingData
+
+from tests.util.misc import ShapeLike, empty_dataset, random_seed
+from tests.util.models.keras.models import (
+    trieste_deep_ensemble_model,
+    trieste_dropout_network_model,
+    trieste_keras_ensemble_model,
+    trieste_mcdropout_model,
+)
+from tests.util.models.models import fnc_2sin_x_over_3
 
 _ENSEMBLE_SIZE = 3
 

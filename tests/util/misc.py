@@ -19,6 +19,7 @@ from typing import Any, Callable, Optional, Sequence, Tuple, TypeVar, Union, cas
 
 import numpy as np
 import tensorflow as tf
+from trieste.data import Dataset
 
 ShapeLike = Union[tf.TensorShape, Sequence[int]]
 """ Type alias for types that can represent tensor shapes. """
@@ -94,8 +95,21 @@ def inputs_outputs_spec(
     :param inputs_shape: The shape of an input without the first dimension.
     :param outputs_shape: The shape of an output without the first dimension.
     :param dtype: The dtype of the tensors.
-    :return: An empty dataset with points of the specified shapes, and dtype `tf.float64`.
+    :return: Tensor specification for inputs and outputs.
     """
     inputs = tf.TensorSpec(tf.TensorShape([0]) + inputs_shape, dtype)
     outputs = tf.TensorSpec(tf.TensorShape([0]) + outputs_shape, dtype)
     return inputs, outputs
+
+
+def empty_dataset(
+    query_point_shape: ShapeLike, observation_shape: ShapeLike, dtype: tf.DType = tf.float64
+) -> Dataset:
+    """
+    :param query_point_shape: The shape of query points without the first dimension.
+    :param observation_shape: The shape of observations without the first dimension.
+    :return: An empty dataset with points of the specified shapes, and dtype `tf.float64`.
+    """
+    qp = tf.zeros(tf.TensorShape([0]) + query_point_shape, dtype)
+    obs = tf.zeros(tf.TensorShape([0]) + observation_shape, dtype)
+    return Dataset(qp, obs)

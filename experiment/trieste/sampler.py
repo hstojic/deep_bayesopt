@@ -15,14 +15,14 @@
 from __future__ import annotations
 
 import tensorflow as tf
-from trieste.types import TensorType
-from trieste.utils import flatten_leading_dims
 from trieste.models.interfaces import (
+    TrainableProbabilisticModel,
     TrajectoryFunction,
     TrajectoryFunctionClass,
     TrajectorySampler,
-    TrainableProbabilisticModel,
 )
+from trieste.types import TensorType
+from trieste.utils import flatten_leading_dims
 
 
 class DropoutTrajectorySampler(TrajectorySampler[TrainableProbabilisticModel]):

@@ -22,9 +22,6 @@ import numpy.testing as npt
 import pytest
 import tensorflow as tf
 from _pytest.mark import ParameterSet
-
-from tests.util.misc import random_seed
-from tests.util.models.keras.models import MCDropConnect
 from trieste.acquisition import (
     GIBBON,
     AcquisitionFunctionClass,
@@ -62,17 +59,15 @@ from trieste.models.gpflow import (
     build_svgp,
 )
 from trieste.models.gpflux import DeepGaussianProcess, build_vanilla_deep_gp
-
 from trieste.models.keras import (
     DeepEnsemble,
-    MonteCarloDropout,
     DropConnectNetwork,
     DropoutNetwork,
-    build_vanilla_keras_mcdropout,
+    MonteCarloDropout,
     build_vanilla_keras_ensemble,
+    build_vanilla_keras_mcdropout,
 )
 from trieste.models.optimizer import BatchOptimizer, KerasOptimizer
-
 from trieste.objectives import (
     BRANIN_MINIMIZERS,
     BRANIN_SEARCH_SPACE,
@@ -87,6 +82,9 @@ from trieste.objectives.utils import mk_observer
 from trieste.observer import OBJECTIVE
 from trieste.space import Box, SearchSpace
 from trieste.types import State, TensorType
+
+from tests.util.misc import random_seed
+from tests.util.models.keras.models import MCDropConnect
 
 
 # Optimizer parameters for testing GPR against the branin function.

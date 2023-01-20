@@ -17,11 +17,11 @@ from __future__ import annotations
 import numpy.testing as npt
 import pytest
 import tensorflow as tf
+from trieste.models.keras import DropoutTrajectorySampler, EnsembleTrajectorySampler
+from trieste.models.keras.architectures import DropoutNetwork
 
 from tests.util.misc import empty_dataset, random_seed
 from tests.util.models.keras.models import trieste_deep_ensemble_model, trieste_mcdropout_model
-from trieste.models.keras import EnsembleTrajectorySampler, DropoutTrajectorySampler
-from trieste.models.keras.architectures import DropoutNetwork
 
 _ENSEMBLE_SIZE = 3
 

@@ -13,14 +13,15 @@
 # limitations under the License.
 
 from __future__ import annotations
+
 from typing import Optional
 
 import tensorflow as tf
 from trieste.data import Dataset
-from trieste.types import TensorType
 from trieste.models.interfaces import TrainableProbabilisticModel
-from trieste.models.optimizer import KerasOptimizer
 from trieste.models.keras.interface import KerasPredictor
+from trieste.models.optimizer import KerasOptimizer
+from trieste.types import TensorType
 
 from uanets.models.mc_dropout import DropoutNetwork
 
