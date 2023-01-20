@@ -16,7 +16,6 @@ from typing import Tuple, Union
 
 import tensorflow as tf
 
-
 TensorType = Union[tf.Tensor, tf.Variable]
 """
 Type alias for tensor-like types that are supported by most TensorFlow operations.
