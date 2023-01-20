@@ -37,6 +37,7 @@ gpflux = "^0.3.1"
 gpflow = "^2.6.3"
 ray = "^2.2.0"
 Hydra = "^2.5"
+check-shapes = "^1.0.0"
 
 
 [tool.poetry.dev-dependencies]
