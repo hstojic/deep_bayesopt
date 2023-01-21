@@ -13,7 +13,9 @@
 # limitations under the License.
 
 from experiment.trieste.builders import build_montecarlo_dropout
+from experiment.trieste.models import TriesteMonteCarloDropout
 
 __all__ = [
     "build_montecarlo_dropout",
+    "TriesteMonteCarloDropout",
 ]

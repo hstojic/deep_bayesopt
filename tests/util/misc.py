@@ -113,3 +113,16 @@ def empty_dataset(
     qp = tf.zeros(tf.TensorShape([0]) + query_point_shape, dtype)
     obs = tf.zeros(tf.TensorShape([0]) + observation_shape, dtype)
     return Dataset(qp, obs)
+
+
+def random_dataset(
+    query_point_shape: ShapeLike, observation_shape: ShapeLike, dtype: tf.DType = tf.float64
+) -> Dataset:
+    """
+    :param query_point_shape: The shape of query points.
+    :param observation_shape: The shape of observations.
+    :return: A dataset with points of the specified shapes, and dtype `tf.float64`.
+    """
+    qp = tf.random.uniform(query_point_shape, dtype=dtype)
+    obs = tf.random.uniform(observation_shape, dtype=dtype)
+    return Dataset(qp, obs)

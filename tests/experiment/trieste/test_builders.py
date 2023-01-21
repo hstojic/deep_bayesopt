@@ -16,7 +16,6 @@ from typing import Union
 
 import pytest
 import tensorflow as tf
-import tensorflow_probability as tfp
 
 from experiment.trieste.builders import build_montecarlo_dropout
 from tests.util.misc import empty_dataset
