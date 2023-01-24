@@ -19,12 +19,12 @@ import numpy.testing as npt
 import pytest
 import tensorflow as tf
 from trieste.data import Dataset
-from experiment.trieste import TriesteMonteCarloDropout
 from trieste.models.optimizer import KerasOptimizer
 
-from tests.util.misc import ShapeLike, empty_dataset, random_seed, random_dataset
-from tests.util.models import trieste_montecarlo_dropout_test, montecarlo_dropout_test
+from experiment.trieste import TriesteMonteCarloDropout
 from tests.util.functions import fnc_2sin_x_over_3
+from tests.util.misc import ShapeLike, empty_dataset, random_dataset, random_seed
+from tests.util.models import montecarlo_dropout_test, trieste_montecarlo_dropout_test
 
 
 @pytest.fixture(name="rate", params=[0.1])

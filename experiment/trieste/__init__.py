@@ -14,8 +14,11 @@
 
 from experiment.trieste.builders import build_montecarlo_dropout
 from experiment.trieste.models import TriesteMonteCarloDropout
+from experiment.trieste.sampler import DropoutTrajectorySampler, dropout_trajectory
 
 __all__ = [
     "build_montecarlo_dropout",
     "TriesteMonteCarloDropout",
+    "dropout_trajectory",
+    "DropoutTrajectorySampler",
 ]

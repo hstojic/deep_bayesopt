@@ -16,8 +16,8 @@ import tensorflow as tf
 from trieste.data import Dataset
 from trieste.models.optimizer import KerasOptimizer
 
-from uanets.models.mc_dropout import MonteCarloDropout
 from experiment.trieste import TriesteMonteCarloDropout
+from uanets.models.mc_dropout import MonteCarloDropout
 
 
 def montecarlo_dropout_test(

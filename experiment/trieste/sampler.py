@@ -12,30 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
+from typing import Dict
 
 import tensorflow as tf
 from trieste.models.interfaces import (
-    TrainableProbabilisticModel,
+    ProbabilisticModel,
     TrajectoryFunction,
     TrajectoryFunctionClass,
     TrajectorySampler,
 )
 from trieste.types import TensorType
-from trieste.utils import flatten_leading_dims
 
 
-class DropoutTrajectorySampler(TrajectorySampler[TrainableProbabilisticModel]):
+class DropoutTrajectorySampler(TrajectorySampler[ProbabilisticModel]):
     """
     This class builds functions that approximate a trajectory by using the predicted means
     of the stochastic forward passes as a trajectory.
     """
 
-    def __init__(self, model: TrainableProbabilisticModel):
+    def __init__(self, model: ProbabilisticModel):
         """
         :param model: The Monte Carlo Dropout model to sample from.
         """
-        if not isinstance(model, TrainableProbabilisticModel):
+        if not isinstance(model, ProbabilisticModel):
             raise NotImplementedError(
                 f"DropoutTrajectorySampler only works with Probabilistic Models; "
                 f"received {model.__repr__()}"
@@ -51,14 +50,25 @@ class DropoutTrajectorySampler(TrajectorySampler[TrainableProbabilisticModel]):
 
     def get_trajectory(self) -> TrajectoryFunction:
         """
-            Generate an approximate function draw (trajectory) by using the predicted means
+        Generate an approximate function draw (trajectory) by using the predicted means
         of the stochastic forward passes as a trajectory.
 
-            :return: A trajectory function representing an approximate trajectory
-                from the model, taking an input of shape `[N, 1, D]` and returning shape `[N, 1]`.
+        :return: A trajectory function representing an approximate trajectory
+            from the model, taking an input of shape `[N, B, D]` and returning shape `[N, B, 1]`.
         """
-
         return dropout_trajectory(self._model)
+
+    def update_trajectory(self, trajectory: TrajectoryFunction) -> TrajectoryFunction:
+        """
+        Update a :const:`TrajectoryFunction` to reflect an update in the model.
+        Here we rely on the underlying models being updated and we only resample the trajectory.
+
+        :param trajectory: The trajectory function to be resampled.
+        :return: The new trajectory function updated for a new model
+        """
+        tf.debugging.Assert(isinstance(trajectory, dropout_trajectory), [tf.constant([])])
+        trajectory.resample()  # type: ignore
+        return trajectory
 
     def resample_trajectory(self, trajectory: TrajectoryFunction) -> TrajectoryFunction:
         """
@@ -68,7 +78,7 @@ class DropoutTrajectorySampler(TrajectorySampler[TrainableProbabilisticModel]):
         :param trajectory: The trajectory function to be resampled.
         :return: The new resampled trajectory function.
         """
-        tf.debugging.Assert(isinstance(trajectory, dropout_trajectory), [])
+        tf.debugging.Assert(isinstance(trajectory, dropout_trajectory), [tf.constant([])])
         trajectory.resample()  # type: ignore
         return trajectory
 
@@ -79,13 +89,12 @@ class dropout_trajectory(TrajectoryFunctionClass):
     of the stochastic forward passes as a trajectory.
     """
 
-    def __init__(self, model: TrainableProbabilisticModel):
+    def __init__(self, model: ProbabilisticModel):
         """
         :param model: The model of the objective function.
         """
         self._model = model
         self._initialized = tf.Variable(False, trainable=False)
-
         self._batch_size = tf.Variable(0, dtype=tf.int32, trainable=False)
 
         self._seeds = tf.Variable(
@@ -93,7 +102,7 @@ class dropout_trajectory(TrajectoryFunctionClass):
         )
 
     @tf.function
-    def __call__(self, x: TensorType) -> TensorType:  # [N, B, d] -> [N, B]
+    def __call__(self, x: TensorType) -> TensorType:  # [N, B, d] -> [N, B, 1]
         """
         Call trajectory function. It uses `tf.random` seeds to fix the matrix of dropout
         inputs or weights in the kernel, and performs a single forward pass to return the
@@ -122,7 +131,8 @@ class dropout_trajectory(TrajectoryFunctionClass):
         for b, seed in zip(batch_index, tf.unstack(self._seeds)):
             tf.random.set_seed(
                 seed
-            )  # [DAV] A possible local seed? One can pass operational seeds to both types of dropouts, but it doesn't seem to fix the prediction
+            )  # A possible local seed? One can pass operational seeds to both types of
+            # dropouts, but it doesn't seem to fix the prediction
             predictions.append(self._model.sample(x[:, b, :], num_samples=1)[0])
 
         return tf.transpose(tf.squeeze(predictions, axis=-1), perm=[1, 0])
@@ -136,3 +146,15 @@ class dropout_trajectory(TrajectoryFunctionClass):
                 shape=(self._batch_size, 1), minval=1, maxval=999999999, dtype=tf.int32
             )
         )
+
+    def get_state(self) -> Dict[str, TensorType]:
+        """
+        Return internal state variables.
+        """
+        state = {
+            "initialized": self._initialized,
+            "batch_size": self._batch_size,
+            "seeds": self._seeds,
+        }
+
+        return state
