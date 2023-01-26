@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Optional
 
 import tensorflow as tf
 from check_shapes import check_shapes
