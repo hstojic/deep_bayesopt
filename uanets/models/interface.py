@@ -63,7 +63,7 @@ class ApproximateBayesianModel(tf.keras.Model, ABC):
     @abstractmethod
     @check_shapes(
         "x: [batch..., N, D]",
-        "return: [batch..., N, P] if (num_samples is None)",
+        "return: [batch..., 1, N, P] if (num_samples is None)",
         "return: [batch..., S, N, P] if (num_samples is not None)",
     )
     def sample(
@@ -83,9 +83,9 @@ class ApproximateBayesianModel(tf.keras.Model, ABC):
             Input locations at which to draw samples.
         :param num_samples:
             Number of samples to draw.
-            If `None`, a single sample is drawn and the return shape is [..., N, P],
-            for any positive integer the return shape contains an extra batch
-            dimension, [..., S, N, P], with S = num_samples and P is the number of outputs.
+            If `None`, a single sample is drawn and the return shape is [..., 1, N, P],
+            for any positive integer the return shape is [..., S, N, P], with S = num_samples and
+            P is the number of outputs.
         :param seed:
             Set the seed to produce deterministic results.
         """
