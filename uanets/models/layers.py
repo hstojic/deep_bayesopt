@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Contains some custom uanet layers
+Contains some custom uanet layers.
 """
 import tensorflow as tf
 from tensorflow_probability import distributions as tfpd
