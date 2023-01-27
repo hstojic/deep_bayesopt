@@ -99,3 +99,18 @@ def inputs_outputs_spec(
     inputs = tf.TensorSpec(tf.TensorShape([0]) + inputs_shape, dtype)
     outputs = tf.TensorSpec(tf.TensorShape([0]) + outputs_shape, dtype)
     return inputs, outputs
+
+
+def random_inputs_outputs(
+    inputs_shape: ShapeLike, outputs_shape: ShapeLike, dtype: tf.DType = tf.float64
+) -> Tuple[tf.Tensor, tf.Tensor]:
+    """
+    :param num_obs: The
+    :param inputs_shape: The shape of an input.
+    :param outputs_shape: The shape of an output.
+    :param dtype: The dtype of the tensors.
+    :return: Random tensors with points of the specified shapes, and dtype `tf.float64`.
+    """
+    inputs = tf.random.uniform(inputs_shape, dtype=dtype)
+    outputs = tf.random.uniform(outputs_shape, dtype=dtype)
+    return inputs, outputs

@@ -12,19 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Optional, Sequence
 
 import numpy as np
 import tensorflow as tf
+from check_shapes import inherit_check_shapes
+
+from uanets.models.interface import ApproximateBayesianModel
+from uanets.types import MeanAndVariance
 
 
-class MonteCarloDropout(tf.keras.Model):
+class MonteCarloDropout(ApproximateBayesianModel):
     """
     This class builds a standard dropout neural network using Keras. The network
     architecture is a multilayer fully-connected feed-forward network, with Dropout layers
-    preceding each fully connected dense layer. The network is meant to be passed to
-    :class:`~trieste.models.keras.models.MonteCarloDropout` which will define the predict method
-    to make this a probabilistic model. Otherwise this class will only use dropout in training.
+    preceding each fully connected dense layer. Following <cite data-cite="gal2015simple"/>,
+    performing multiple forward passes with dropout can be interpreted as generating a posterior
+    distribution.
     """
 
     def __init__(
@@ -111,3 +115,79 @@ class MonteCarloDropout(tf.keras.Model):
         output = self.output_layer(hidden_output)
 
         return output
+
+    @inherit_check_shapes
+    def predict_mean_and_var(
+        self, x: tf.Tensor, num_samples: Optional[int] = None, seed: Optional[int] = None
+    ) -> MeanAndVariance:
+        r"""
+        Return the mean and variance of the independent marginal distributions at each point in
+        ``x``.
+
+        Following <cite data-cite="gal2015simple"/>, we make T stochastic forward
+        passes through the trained network of L hidden layers M_l and average the results to derive
+        the mean and variance. These are respectively given by
+        .. math:: \mathbb{E}_{q\left(\mathbf{y}^{*} \mid \mathbf{x}^{*}\right)}
+            \left(\mathbf{y}^{*}\right) \approx \frac{1}{T} \sum_{t=1}^{T}
+            \widehat{\mathbf{y}}^{*}\left(\mathrm{x}^{*}, \widehat{\mathbf{M}}_{1}^{t},
+            \ldots, \widehat{\mathbf{M}}_{L}^{t}\right)
+
+        .. math:: \frac{1}{T} \operatorname{Var}_{q\left(\mathbf{y}^{*} \mid \mathbf{x}^{*}\right)}
+        \left(\mathbf{y}^{*}\right) \approx\sum_{t=1}^{T}
+        \widehat{\mathbf{y}}^{*}\left(\mathbf{x}^{*},
+        \widehat{\mathbf{M}}_{1}^{t}, \ldots, \widehat{\mathbf{M}}_{L}^{t}\right)^{T}
+        \widehat{\mathbf{y}}^{*}\left(\mathbf{x}^{*}, \widehat{\mathbf{M}}_{1}^{t}, \ldots,
+        \widehat{\mathbf{M}}_{L}^{t}\right)-\mathbb{E}_{q\left(\mathbf{y}^{*} \mid
+        \mathbf{x}^{*}\right)}\left(\mathbf{y}^{*}\right)^{T} \mathbb{E}_{q\left(\mathbf{y}^{*}
+        \mid \mathbf{x}^{*}\right)}\left(\mathbf{y}^{*}\right)
+
+        :param x:
+            Input locations at which to compute mean and variance.
+        :param num_samples:
+            The number of stochastic passes based on which mean and variance will be computed.
+        :param seed:
+            The seed to produce deterministic results - unused here.
+        :return: The mean and variance of the independent marginal distributions at each point in
+            ``x``.
+        """
+        tf.debugging.assert_greater_equal(num_samples, 1)
+        stochastic_passes = tf.stack(
+            [self.__call__(x, training=True) for _ in range(num_samples)], axis=0
+        )
+        predicted_means = tf.math.reduce_mean(stochastic_passes, axis=0)
+
+        predicted_vars = tf.subtract(
+            tf.divide(
+                tf.reduce_sum(tf.math.multiply(stochastic_passes, stochastic_passes), axis=0),
+                num_samples,
+            ),
+            tf.math.square(predicted_means),
+        )
+        return predicted_means, predicted_vars
+
+    @inherit_check_shapes
+    def sample(
+        self,
+        x: tf.Tensor,
+        num_samples: Optional[int] = None,
+        seed: Optional[int] = None,
+    ) -> tf.Tensor:
+        """
+        Return ``num_samples`` samples from the independent marginal distributions at ``x``.
+        We use the stochastic forward passes to simulate ``num_samples`` samples for each point of
+        ``x`` points.
+
+        :param x:
+            Input locations at which to draw samples.
+        :param num_samples:
+            Number of samples to draw.
+            If `None`, a single sample is drawn and the return shape is [..., 1, N, P],
+            for any positive integer the return shape is [..., S, N, P], with S = num_samples and
+            P is the number of outputs.
+        :param seed:
+            The seed to produce deterministic results - unused here.
+        """
+        if num_samples is None:
+            num_samples = 1
+
+        return tf.stack([self.__call__(x, training=True) for _ in range(num_samples)], axis=0)

@@ -26,6 +26,7 @@ from check_shapes.config import (
     set_rewrite_docstrings,
 )
 
+
 @pytest.fixture(autouse=True)
 def enable_shape_checks() -> Iterable[None]:
     old_enable = get_enable_check_shapes()
