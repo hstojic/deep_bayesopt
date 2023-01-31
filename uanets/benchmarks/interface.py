@@ -17,9 +17,9 @@ This module contains interfaces that synthetic and dataset based benchmarks have
 """
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Optional, Tuple
 
-from dataclasses import dataclass
 import tensorflow as tf
 
 
@@ -35,7 +35,8 @@ class Benchmark(ABC):
     @abstractmethod
     def data(self, num_samples: Optional[int], seed: Optional[int]) -> Tuple[tf.Tensor, tf.Tensor]:
         """
-        Returns data in the form of input and output tensors, with ``num_samples`` observations if argument is used.
+        Returns data in the form of input and output tensors, with ``num_samples`` observations if
+        argument is used.
 
         :param num_samples: The number of samples to take for generating the data. In case of
             synthetic benchmarks these might be random draws, while for datasets if used it would

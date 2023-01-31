@@ -12,27 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pandas as pd
 
-
-UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/"
-
-UCI_BASE_URL = "https://github.com/secondmind-labs/GPflux/blob/develop/docs/notebooks/data/motor.csv"
-
-
-
-The data comes from a motorcycle accident simulation [1] and shows some interesting behaviour. In particular the heteroscedastic nature of the noise.
-
-
-https://github.com/secondmind-labs/GPflux/blob/develop/docs/notebooks/data/motor.csv
-
-
-# [1] Silverman, B. W. (1985) "Some aspects of the spline smoothing approach to non-parametric curve fitting". _Journal of the Royal Statistical Society_ series B 47, 1-52.
+MOTORCYCLE_DATA_URL = (
+    "https://github.com/secondmind-labs/GPflux/blob/develop/docs/notebooks/data/motor.csv"
+)
 
 
 def motorcycle_data():
-    """Return inputs and outputs for the motorcycle dataset. We normalise the outputs."""
-    import pandas as pd
+    """
+    The data comes from a motorcycle accident simulation (see ref below) and shows some
+    interesting behaviour, in particular the heteroscedastic nature of the noise.
 
+    Silverman, B. W. (1985) "Some aspects of the spline smoothing approach to non-parametric curve
+    fitting". Journal of the Royal Statistical Society, series B 47, 1-52.
+
+    Return inputs and outputs for the motorcycle dataset. We normalise the outputs.
+    """
     df = pd.read_csv("./data/motor.csv", index_col=0)
     X, Y = df["times"].values.reshape(-1, 1), df["accel"].values.reshape(-1, 1)
     Y = (Y - Y.mean()) / Y.std()
