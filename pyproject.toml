@@ -37,7 +37,8 @@ gpflux = "^0.3.1"
 gpflow = "^2.6.3"
 ray = "^2.2.0"
 Hydra = "^2.5"
-
+check-shapes = "^1.0.0"
+matplotlib = "^3.5.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^5.0.0"
@@ -52,21 +53,7 @@ pytest-cov = "^4.0.0"
 pytest-flake8 = "^1.1.1"
 pytest-isort = "^3.1.0"
 pytest-mypy = "^0.10.3"
-
-[tool.taskipy.tasks]
-tests = "pytest --mypy --durations 6"
-quicktests = "pytest -x --ff -rN -Wignore --ignore-glob=tests/integration/*"
-mypy = "mypy"
-check_format = "pytest -v --black --flake8 --isort -m 'black or flake8 or isort'"
-format = "black . && flake8 . && isort . && black -l 80 notebooks/*pct.py"
-
-[tool.mypy]
-files = "experiments,trieste,scripts,uanets,tests"
-ignore_missing_imports = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-strict_equality = true
-show_error_codes = true
+Flake8-pyproject = "^1.2.2"
 
 [tool.black]
 line-length = 100
@@ -79,6 +66,26 @@ profile = "black"
 skip_gitignore = true
 skip_glob = "notebooks"
 line_length = 100
+
+[tool.flake8]
+max-line-length = 100
+ignore = ['E203', 'W503']
+exclude = '.git,__pycache__,.mypy_cache,.pytest_cache,.venv'
+
+[tool.taskipy.tasks]
+tests = "pytest --mypy --durations 6"
+quicktests = "pytest -x --ff -rN -Wignore --ignore-glob=tests/integration/*"
+mypy = "mypy"
+check_format = "pytest -v --black --flake8 --isort -m 'black or flake8 or isort'"
+format = "black . && flake8 . && isort ."
+
+[tool.mypy]
+files = "experiments,uanets,tests"
+ignore_missing_imports = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+show_error_codes = true
 
 [build-system]
 requires = ["poetry>=0.12"]
