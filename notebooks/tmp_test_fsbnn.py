@@ -24,17 +24,17 @@ from uanets.models.function_space_bnn import FunctionSpaceBNN
 
 # %%
 def _f(x):
-    return np.sqrt(x) * np.sin(2 * x) - 0.5
+    return np.sqrt(x) * np.sin(8 * np.pi * x)
 
 
 # %%
 x = np.vstack(
     (
-        0.2 * np.random.default_rng(4).uniform(size=(100, 1)),
-        0.2 * np.random.default_rng(4).uniform(size=(100, 1)) + 0.8,
+        0.25 * np.random.default_rng(4).uniform(size=(50, 1)),
+        0.25 * np.random.default_rng(4).uniform(size=(50, 1)) + 0.75,
     )
 )
-y = _f(x) + 0.05 * np.random.default_rng(4).normal(size=x.shape)
+y = _f(x) + 5e-2 * np.random.default_rng(4).normal(size=x.shape)
 x -= 0.5
 
 # %%
@@ -51,16 +51,19 @@ prior = tf.keras.Sequential(layers=[UnitNormalLayer(units=1)])
 # %%
 posterior = tf.keras.Sequential(
     layers=[
-        DenseStochasticLayer(2**10, activation="swish"),
-        tf.keras.layers.Dense(1),
+        DenseStochasticLayer(16, activation="swish"),
+        DenseStochasticLayer(16, activation="swish"),
+        DenseStochasticLayer(16, activation="swish"),
+        DenseStochasticLayer(1),
     ]
 )
 
 # %%
-mean_function = tf.keras.Sequential(layers=[tf.keras.layers.Dense(1, kernel_initializer="ones")])
+mean_function = tf.keras.Sequential(layers=[tf.keras.layers.Dense(1, kernel_initializer="zeros")])
+mean_function.trainable = False
 
 # %%
-likelihood = tf.keras.Sequential(layers=[GaussianLikelihoodLayer(0.1)])
+likelihood = tf.keras.Sequential(layers=[GaussianLikelihoodLayer(1e-1)])
 
 # %%
 model = FunctionSpaceBNN(
@@ -68,19 +71,25 @@ model = FunctionSpaceBNN(
     posterior=posterior,
     likelihood=likelihood,
     mean_function=mean_function,
-    num_data=0,  # X.shape[0],  test prior reversion
+    num_data=X.shape[0],
 )
 
 # %%
-model.compile("adam")
+callbacks = [
+    tf.keras.callbacks.ReduceLROnPlateau(monitor="loss", factor=0.9, patience=50),
+    tf.keras.callbacks.EarlyStopping(monitor="loss", patience=1_000),
+]
 
 # %%
-model.fit(X, Y, batch_size=20, epochs=500, shuffle=True)
+optimizer = tf.keras.optimizers.Adam(5e-2)
+model.compile(optimizer)
+
+# %%
+model.fit(X, Y, batch_size=10, epochs=10_000, shuffle=True, callbacks=callbacks)
 
 # %%
 x_test = tf.linspace(-2, 2, 401)[:, None]
-means = tf.stack([model(x_test).mean() for _ in range(100)], axis=0)
-# means = tf.stack([posterior(x_test) for _ in range(100)], axis=0)
+means = tf.stack([model(x_test).mean() for _ in range(400)], axis=0)
 
 # %%
 mean = tf.reduce_mean(means, axis=0)

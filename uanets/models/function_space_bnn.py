@@ -14,8 +14,8 @@
 from typing import Optional
 
 import tensorflow as tf
-from tensorflow.python.keras.engine import data_adapter
 import tensorflow_probability as tfp
+from tensorflow.python.keras.engine import data_adapter
 
 
 class FunctionSpaceBNN(tf.keras.Model):
@@ -47,7 +47,7 @@ class FunctionSpaceBNN(tf.keras.Model):
     def _custom_loss(self, x: tf.Tensor, y: tf.Tensor) -> tf.Tensor:
 
         inducing_points = tf.random.uniform(
-            minval=-2.0, maxval=2.0, shape=x.shape, dtype=self.dtype
+            minval=-2.0, maxval=2.0, shape=(2 * 8 * x.shape[0], x.shape[1]), dtype=self.dtype
         )
 
         posterior_samples = tf.stack([self.posterior(inducing_points) for _ in range(20)], axis=0)
