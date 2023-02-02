@@ -469,6 +469,23 @@ omegaconf = ">=2.2,<2.4"
 packaging = "*"
 
 [[package]]
+name = "hydra-zen"
+version = "0.9.1"
+description = "Configurable, reproducible, and scalable workflows in Python, via Hydra"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+hydra-core = ">=1.1.0"
+typing-extensions = ">=4.1.0"
+
+[package.extras]
+beartype = ["beartype (>=0.8.0)"]
+pydantic = ["pydantic (>=1.8.2)"]
+test = ["pytest (>=3.8)", "hypothesis (>=6.28.0)"]
+
+[[package]]
 name = "idna"
 version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -1472,7 +1489,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.10"
-content-hash = "3bf71ffc78cf6a59ff240c661fb9d7ea2f5b13a6b8021675289da12d76f97a8d"
+content-hash = "ff1435e353883eef8f75b179f0213af3df3bf81d8d3da66e5179fff0325d3b22"
 
 [metadata.files]
 absl-py = [
@@ -2045,6 +2062,10 @@ h5py = [
 hydra-core = [
     {file = "hydra-core-1.3.1.tar.gz", hash = "sha256:8dd42d551befc43dfca0c612cbd58c4f3e273dbd97a87214c1a030ba557d238b"},
     {file = "hydra_core-1.3.1-py3-none-any.whl", hash = "sha256:d1c8b273eba0be68218c4ff1ae9a7df7430ce4aa580f1bbebc03297029761cf4"},
+]
+hydra-zen = [
+    {file = "hydra_zen-0.9.1-py3-none-any.whl", hash = "sha256:379dfd2340b079832f2880d7bb8338aade35a64d5b4a47bbb125984ac847fc48"},
+    {file = "hydra_zen-0.9.1.tar.gz", hash = "sha256:3f119d1e565fd4820c770643dc761370cc8d4abdc3414ed07f87d434a50b6e46"},
 ]
 idna = [
     {file = "idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
