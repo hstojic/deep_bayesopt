@@ -86,19 +86,16 @@ class MonteCarloDropout(ApproximateBayesianModel):
         hidden_layers = tf.keras.Sequential(name="hidden_layers")
         for hidden_layer_args in self._hidden_layer_args:
             hidden_layers.add(
-                tf.keras.layers.Dropout(rate=self.rate, dtype=self.input_tensor_spec.dtype)
+                tf.keras.layers.Dense(dtype=self.input_tensor_spec.dtype, **hidden_layer_args)
             )
             hidden_layers.add(
-                tf.keras.layers.Dense(dtype=self.input_tensor_spec.dtype, **hidden_layer_args)
+                tf.keras.layers.Dropout(rate=self.rate, dtype=self.input_tensor_spec.dtype)
             )
         return hidden_layers
 
     def _gen_output_layer(self) -> tf.keras.Model:
 
         output_layer = tf.keras.Sequential(name="output_layer")
-        output_layer.add(
-            tf.keras.layers.Dropout(rate=self.rate, dtype=self.input_tensor_spec.dtype)
-        )
         output_layer.add(
             tf.keras.layers.Dense(
                 units=self.flattened_output_shape, dtype=self.input_tensor_spec.dtype

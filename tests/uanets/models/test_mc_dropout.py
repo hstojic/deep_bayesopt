@@ -79,19 +79,16 @@ def test_dropout_network_build_seems_correct(
     # check the number of layers is correct and they are properly constructed
     assert len(model.layers) == 2
     assert len(model.layers[0].layers) == num_hidden_layers * 2
-    assert len(model.layers[1].layers) == 2
+    assert len(model.layers[1].layers) == 1
 
     for i, layer in enumerate(model.layers[0].layers):
-        if i % 2 == 0:
-            isinstance(layer, tf.keras.layers.Dropout)
+        if i % 2 == 1:
+            assert isinstance(layer, tf.keras.layers.Dropout)
             layer.rate == rate_all_layers[int(i / 2)]
-        elif i % 2 == 1:
-            isinstance(layer, tf.keras.layers.Dense)
+        elif i % 2 == 0:
+            assert isinstance(layer, tf.keras.layers.Dense)
             assert layer.units == units
             assert layer.activation == activation or layer.activation.__name__ == activation
-
-    assert isinstance(model.layers[1].layers[0], tf.keras.layers.Dropout)
-    assert model.layers[1].layers[0].rate == rate_all_layers[-1]
 
     assert isinstance(model.layers[1].layers[-1], tf.keras.layers.Dense)
     assert model.layers[1].layers[-1].units == int(np.prod(outputs.shape[1:]))
