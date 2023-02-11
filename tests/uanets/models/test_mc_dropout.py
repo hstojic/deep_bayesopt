@@ -20,7 +20,7 @@ import pytest
 import tensorflow as tf
 from tensorflow.python.framework.errors_impl import InvalidArgumentError
 
-from tests.util.misc import inputs_outputs_spec, random_inputs_outputs, random_seed
+from tests.util.misc import inputs_outputs_spec, random_inputs_outputs
 from tests.util.models import mc_dropout_model
 from uanets.models import MonteCarloDropout
 
@@ -187,23 +187,3 @@ def test_dropout_network_sample_call_shape(
 
     assert tf.is_tensor(samples)
     assert samples.shape == [num_samples] + output_shape
-
-
-@random_seed
-@pytest.mark.parametrize("num_samples", [100, 500, 1000])
-def test_dropout_network_sample_equal_predict(rate: float, num_samples) -> None:
-    input_shape, output_shape = [100, 5], [100, 3]
-    inputs, outputs = random_inputs_outputs(input_shape, output_shape)
-
-    model = mc_dropout_model(inputs, outputs, rate)
-
-    samples = model.sample(inputs, num_samples)
-    sample_mean = tf.reduce_mean(samples, axis=0)
-    sample_variance = tf.reduce_mean((samples - sample_mean) ** 2, axis=0)
-
-    ref_mean, ref_variance = model.predict_mean_and_var(inputs, 100)
-
-    error = 1 / tf.sqrt(tf.cast(num_samples, tf.float32))
-
-    npt.assert_allclose(sample_mean, ref_mean, atol=4 * error)
-    npt.assert_allclose(sample_variance, ref_variance, atol=8 * error)

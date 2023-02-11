@@ -147,19 +147,15 @@ class MonteCarloDropout(ApproximateBayesianModel):
         :return: The mean and variance of the independent marginal distributions at each point in
             ``x``.
         """
-        tf.debugging.assert_greater_equal(num_samples, 1)
-        stochastic_passes = tf.stack(
-            [self.__call__(x, training=True) for _ in range(num_samples)], axis=0
-        )
-        predicted_means = tf.math.reduce_mean(stochastic_passes, axis=0)
+        if num_samples is None:
+            raise TypeError("num_samples must be set for this method")
 
-        predicted_vars = tf.subtract(
-            tf.divide(
-                tf.reduce_sum(tf.math.multiply(stochastic_passes, stochastic_passes), axis=0),
-                num_samples,
-            ),
-            tf.math.square(predicted_means),
-        )
+        tf.debugging.assert_greater_equal(num_samples, 1)
+
+        stochastic_passes = self.sample(x, num_samples)
+        predicted_means = tf.reduce_mean(stochastic_passes, axis=0)
+        predicted_vars = tf.math.reduce_variance(stochastic_passes, axis=0)
+
         return predicted_means, predicted_vars
 
     @inherit_check_shapes
@@ -184,6 +180,9 @@ class MonteCarloDropout(ApproximateBayesianModel):
         :param seed:
             The seed to produce deterministic results - unused here.
         """
+        # if num_samples is None:
+        #     raise TypeError("num_samples must be set for this method")
+
         if num_samples is None:
             num_samples = 1
 
