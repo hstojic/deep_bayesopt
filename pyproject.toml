@@ -55,6 +55,7 @@ pytest-flake8 = "^1.1.1"
 pytest-isort = "^3.1.0"
 pytest-mypy = "^0.10.3"
 Flake8-pyproject = "^1.2.2"
+ruff = "^0.0.246"
 
 [tool.black]
 line-length = 100
@@ -73,12 +74,18 @@ max-line-length = 100
 ignore = ['E203', 'W503']
 exclude = '.git,__pycache__,.mypy_cache,.pytest_cache,.venv'
 
+[tool.ruff]
+line-length = 100
+exclude = '.git,__pycache__,.mypy_cache,.pytest_cache,.venv,.ruff_cache,'
+target-version = "py310"
+
 [tool.taskipy.tasks]
 tests = "pytest --mypy --durations 6"
 quicktests = "pytest -x --ff -rN -Wignore --ignore-glob=tests/integration/*"
 mypy = "mypy"
 check_format = "pytest -v --black --flake8 --isort -m 'black or flake8 or isort'"
 format = "black . && flake8 . && isort ."
+ruff = "ruff check . --fix"
 
 [tool.mypy]
 files = "experiments,uanets,tests"
