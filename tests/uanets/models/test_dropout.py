@@ -48,7 +48,7 @@ def _output_shape_fixture(request: Any) -> List[int]:
 @pytest.mark.parametrize("num_hidden_layers, rate", [(1, 0.3), (3, 0.7), (5, 0.9)])
 @pytest.mark.parametrize("units", [10, 50])
 @pytest.mark.parametrize("activation", ["relu", tf.keras.activations.tanh])
-def test_dropout_network_build_seems_correct(
+def test_mc_dropout_model_build_seems_correct(
     input_shape: List[int],
     output_shape: List[int],
     num_hidden_layers: int,
@@ -95,7 +95,7 @@ def test_dropout_network_build_seems_correct(
     assert model.layers[1].layers[-1].activation == tf.keras.activations.linear
 
 
-def test_dropout_network_can_be_compiled(input_shape: List[int], output_shape: List[int]) -> None:
+def test_mc_dropout_model_can_be_compiled(input_shape: List[int], output_shape: List[int]) -> None:
     """Checks that dropout networks are compilable."""
     inputs, outputs = inputs_outputs_spec(input_shape, output_shape)
     model = MonteCarloDropout(inputs, outputs)
@@ -106,7 +106,7 @@ def test_dropout_network_can_be_compiled(input_shape: List[int], output_shape: L
     assert model.optimizer is not None
 
 
-def test_dropout_network_can_dropout() -> None:
+def test_mc_dropout_model_can_dropout() -> None:
     """Tests the ability of architecture to dropout."""
 
     inputs, outputs = inputs_outputs_spec([1], [1])
@@ -128,7 +128,7 @@ def test_dropout_rate_raises_invalidargument_error(rate: float) -> None:
 
 
 @pytest.mark.parametrize("dtype", [tf.float32, tf.float64])
-def test_dropout_network_dtype(dtype: tf.DType) -> None:
+def test_mc_dropout_model_dtype(dtype: tf.DType) -> None:
     """Tests that network can infer data type from the data"""
     x = tf.constant([[1]], dtype=tf.float16)
     inputs, outputs = tf.TensorSpec([1], dtype), tf.TensorSpec([1], dtype)
@@ -137,7 +137,7 @@ def test_dropout_network_dtype(dtype: tf.DType) -> None:
     assert model(x).dtype == dtype
 
 
-def test_dropout_network_accepts_scalars() -> None:
+def test_mc_dropout_model_accepts_scalars() -> None:
     """Tests that network can handle scalar inputs with ndim = 1 instead of 2"""
     inputs, outputs = inputs_outputs_spec([1, 1], [1, 1])
     model = MonteCarloDropout(inputs, outputs)
@@ -154,7 +154,7 @@ def test_dropout_network_accepts_scalars() -> None:
         [[10, 5], [10, 3]],
     ],
 )
-def test_dropout_network_predict_call_shape(
+def test_mc_dropout_model_predict_call_shape(
     input_shape: List[int], output_shape: List[int], rate: float
 ) -> None:
     inputs, outputs = random_inputs_outputs(input_shape, output_shape)
@@ -176,7 +176,7 @@ def test_dropout_network_predict_call_shape(
         [[10, 5], [10, 3]],
     ],
 )
-def test_dropout_network_sample_call_shape(
+def test_mc_dropout_model_sample_call_shape(
     input_shape: List[int], output_shape: List[int], num_samples: int, rate: float
 ) -> None:
     inputs, outputs = random_inputs_outputs(input_shape, output_shape)

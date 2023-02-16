@@ -14,7 +14,7 @@
 
 import tensorflow as tf
 
-from uanets.models.mc_dropout import MonteCarloDropout
+from uanets.models.dropout import MonteCarloDropout
 
 
 def mc_dropout_model(
