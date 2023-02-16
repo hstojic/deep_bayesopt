@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uanets.models.interface import ApproximateBayesianModel
 from uanets.models.dropout import MonteCarloDropout
+from uanets.models.interface import ApproximateBayesianModel
 
 __all__ = [
     "MonteCarloDropout",

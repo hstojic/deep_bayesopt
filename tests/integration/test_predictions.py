@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 
 from tests.util.misc import random_seed
-from tests.util.models import dropout_model
+from tests.util.models import mc_dropout_model
 
 
 def _power_function(x: tf.Tensor, error=True) -> tf.Tensor:
