@@ -18,12 +18,12 @@ version = "0.1.0"
 description = ""
 authors = ["Hrvoje Stojic <hrvoje.stojic@protonmail.com>"]
 readme = "README.md"
-packages = [{include = "uanets"}]
+packages = [{include = "unflow"}]
 
 [tool.pytest.ini_options]
 testpaths = [
     "experiments",
-    "uanets",
+    "unflow",
     "tests/unit",
     "tests/integration",
 ]
@@ -81,7 +81,7 @@ format = "black . && ruff check . && isort ."
 ruff = "ruff check . --fix"
 
 [tool.mypy]
-files = "experiments,uanets,tests"
+files = "experiments,unflow,tests"
 ignore_missing_imports = true
 warn_redundant_casts = true
 warn_unused_ignores = true

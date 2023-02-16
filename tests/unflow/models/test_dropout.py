@@ -19,10 +19,10 @@ import numpy.testing as npt
 import pytest
 import tensorflow as tf
 from tensorflow.python.framework.errors_impl import InvalidArgumentError
+from uanets.models import MonteCarloDropout
 
 from tests.util.misc import inputs_outputs_spec, random_inputs_outputs
 from tests.util.models import mc_dropout_model
-from uanets.models import MonteCarloDropout
 
 
 @pytest.fixture(name="rate", params=[0.1])
