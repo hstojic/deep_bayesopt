@@ -19,9 +19,15 @@ import numpy.testing as npt
 import pytest
 import tensorflow as tf
 from tensorflow.python.framework.errors_impl import InvalidArgumentError
-
-from tests.util.misc import inputs_outputs_spec
 from uanets.models import MonteCarloDropout
+
+from tests.util.misc import inputs_outputs_spec, random_inputs_outputs
+from tests.util.models import mc_dropout_model
+
+
+@pytest.fixture(name="rate", params=[0.1])
+def _rate_fixture(request: Any) -> float:
+    return request.param
 
 
 @pytest.fixture(name="num_hidden_layers", params=[0, 1, 3])
@@ -42,7 +48,7 @@ def _output_shape_fixture(request: Any) -> List[int]:
 @pytest.mark.parametrize("num_hidden_layers, rate", [(1, 0.3), (3, 0.7), (5, 0.9)])
 @pytest.mark.parametrize("units", [10, 50])
 @pytest.mark.parametrize("activation", ["relu", tf.keras.activations.tanh])
-def test_dropout_network_build_seems_correct(
+def test_mc_dropout_model_build_seems_correct(
     input_shape: List[int],
     output_shape: List[int],
     num_hidden_layers: int,
@@ -73,26 +79,23 @@ def test_dropout_network_build_seems_correct(
     # check the number of layers is correct and they are properly constructed
     assert len(model.layers) == 2
     assert len(model.layers[0].layers) == num_hidden_layers * 2
-    assert len(model.layers[1].layers) == 2
+    assert len(model.layers[1].layers) == 1
 
     for i, layer in enumerate(model.layers[0].layers):
-        if i % 2 == 0:
-            isinstance(layer, tf.keras.layers.Dropout)
+        if i % 2 == 1:
+            assert isinstance(layer, tf.keras.layers.Dropout)
             layer.rate == rate_all_layers[int(i / 2)]
-        elif i % 2 == 1:
-            isinstance(layer, tf.keras.layers.Dense)
+        elif i % 2 == 0:
+            assert isinstance(layer, tf.keras.layers.Dense)
             assert layer.units == units
             assert layer.activation == activation or layer.activation.__name__ == activation
-
-    assert isinstance(model.layers[1].layers[0], tf.keras.layers.Dropout)
-    assert model.layers[1].layers[0].rate == rate_all_layers[-1]
 
     assert isinstance(model.layers[1].layers[-1], tf.keras.layers.Dense)
     assert model.layers[1].layers[-1].units == int(np.prod(outputs.shape[1:]))
     assert model.layers[1].layers[-1].activation == tf.keras.activations.linear
 
 
-def test_dropout_network_can_be_compiled(input_shape: List[int], output_shape: List[int]) -> None:
+def test_mc_dropout_model_can_be_compiled(input_shape: List[int], output_shape: List[int]) -> None:
     """Checks that dropout networks are compilable."""
     inputs, outputs = inputs_outputs_spec(input_shape, output_shape)
     model = MonteCarloDropout(inputs, outputs)
@@ -103,7 +106,7 @@ def test_dropout_network_can_be_compiled(input_shape: List[int], output_shape: L
     assert model.optimizer is not None
 
 
-def test_dropout_network_can_dropout() -> None:
+def test_mc_dropout_model_can_dropout() -> None:
     """Tests the ability of architecture to dropout."""
 
     inputs, outputs = inputs_outputs_spec([1], [1])
@@ -125,7 +128,7 @@ def test_dropout_rate_raises_invalidargument_error(rate: float) -> None:
 
 
 @pytest.mark.parametrize("dtype", [tf.float32, tf.float64])
-def test_dropout_network_dtype(dtype: tf.DType) -> None:
+def test_mc_dropout_model_dtype(dtype: tf.DType) -> None:
     """Tests that network can infer data type from the data"""
     x = tf.constant([[1]], dtype=tf.float16)
     inputs, outputs = tf.TensorSpec([1], dtype), tf.TensorSpec([1], dtype)
@@ -134,7 +137,7 @@ def test_dropout_network_dtype(dtype: tf.DType) -> None:
     assert model(x).dtype == dtype
 
 
-def test_dropout_network_accepts_scalars() -> None:
+def test_mc_dropout_model_accepts_scalars() -> None:
     """Tests that network can handle scalar inputs with ndim = 1 instead of 2"""
     inputs, outputs = inputs_outputs_spec([1, 1], [1, 1])
     model = MonteCarloDropout(inputs, outputs)
@@ -142,3 +145,45 @@ def test_dropout_network_accepts_scalars() -> None:
     test_points = tf.linspace(-1, 1, 100)
 
     assert model(test_points).shape == (100, 1)
+
+
+@pytest.mark.parametrize(
+    "input_shape, output_shape",
+    [
+        [[1, 1], [1, 1]],
+        [[10, 5], [10, 3]],
+    ],
+)
+def test_mc_dropout_model_predict_call_shape(
+    input_shape: List[int], output_shape: List[int], rate: float
+) -> None:
+    inputs, outputs = random_inputs_outputs(input_shape, output_shape)
+
+    model = mc_dropout_model(inputs, outputs, rate)
+    predicted_means, predicted_vars = model.predict_mean_and_var(inputs, 100)
+
+    assert tf.is_tensor(predicted_means)
+    assert predicted_means.shape == output_shape
+    assert tf.is_tensor(predicted_vars)
+    assert predicted_vars.shape == output_shape
+
+
+@pytest.mark.parametrize("num_samples", [6, 12])
+@pytest.mark.parametrize(
+    "input_shape, output_shape",
+    [
+        [[1, 1], [1, 1]],
+        [[10, 5], [10, 3]],
+    ],
+)
+def test_mc_dropout_model_sample_call_shape(
+    input_shape: List[int], output_shape: List[int], num_samples: int, rate: float
+) -> None:
+    inputs, outputs = random_inputs_outputs(input_shape, output_shape)
+
+    model = mc_dropout_model(inputs, outputs, rate)
+
+    samples = model.sample(inputs, num_samples)
+
+    assert tf.is_tensor(samples)
+    assert samples.shape == [num_samples] + output_shape

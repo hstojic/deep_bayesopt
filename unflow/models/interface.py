@@ -18,7 +18,7 @@ from typing import Optional
 import tensorflow as tf
 from check_shapes import check_shapes
 
-from uanets.types import MeanAndVariance
+from unflow.types import MeanAndVariance
 
 
 class ApproximateBayesianModel(tf.keras.Model, ABC):

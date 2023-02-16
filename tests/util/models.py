@@ -13,11 +13,8 @@
 # limitations under the License.
 
 import tensorflow as tf
-from trieste.data import Dataset
-from trieste.models.optimizer import KerasOptimizer
 
-from experiment.trieste import TriesteMonteCarloDropout
-from uanets.models.mc_dropout import MonteCarloDropout
+from unflow.models.dropout import MonteCarloDropout
 
 
 def montecarlo_dropout_test(
@@ -42,20 +39,3 @@ def montecarlo_dropout_test(
     model.build(inputs.shape)
 
     return model
-
-
-def trieste_montecarlo_dropout_test(data: Dataset, rate: float = 0.1) -> TriesteMonteCarloDropout:
-
-    model = montecarlo_dropout_test(data.query_points, data.observations, rate=rate)
-
-    optimizer = tf.keras.optimizers.Adam(0.01)
-    fit_args = {
-        "batch_size": 10,
-        "epochs": 100,
-        "verbose": 0,
-    }
-    trieste_optimizer = KerasOptimizer(optimizer, fit_args)
-
-    trieste_model = TriesteMonteCarloDropout(model, trieste_optimizer)
-
-    return trieste_model, model, trieste_optimizer

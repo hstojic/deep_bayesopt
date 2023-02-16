@@ -19,7 +19,6 @@ from typing import Any, Callable, Optional, Sequence, Tuple, TypeVar, Union, cas
 
 import numpy as np
 import tensorflow as tf
-from trieste.data import Dataset
 
 ShapeLike = Union[tf.TensorShape, Sequence[int]]
 """ Type alias for types that can represent tensor shapes. """
@@ -92,6 +91,9 @@ def inputs_outputs_spec(
     inputs_shape: ShapeLike, outputs_shape: ShapeLike, dtype: tf.DType = tf.float64
 ) -> Tuple[tf.Tensor, tf.Tensor]:
     """
+    Input output tensor specification, assuming empty tensors that have 0 for the leading
+    dimension.
+
     :param inputs_shape: The shape of an input without the first dimension.
     :param outputs_shape: The shape of an output without the first dimension.
     :param dtype: The dtype of the tensors.
@@ -102,27 +104,25 @@ def inputs_outputs_spec(
     return inputs, outputs
 
 
-def empty_dataset(
-    query_point_shape: ShapeLike, observation_shape: ShapeLike, dtype: tf.DType = tf.float64
-) -> Dataset:
+def random_inputs_outputs(
+    inputs_shape: ShapeLike, outputs_shape: ShapeLike, dtype: tf.DType = tf.float64
+) -> Tuple[tf.Tensor, tf.Tensor]:
     """
-    :param query_point_shape: The shape of query points without the first dimension.
-    :param observation_shape: The shape of observations without the first dimension.
-    :return: An empty dataset with points of the specified shapes, and dtype `tf.float64`.
-    """
-    qp = tf.zeros(tf.TensorShape([0]) + query_point_shape, dtype)
-    obs = tf.zeros(tf.TensorShape([0]) + observation_shape, dtype)
-    return Dataset(qp, obs)
+    Creates input and output tensors filled with random numbers drawn from uniform distribution.
+    Leading dimension of ``inputs_shape`` and ``outputs_shape`` has to be the same.
 
-
-def random_dataset(
-    query_point_shape: ShapeLike, observation_shape: ShapeLike, dtype: tf.DType = tf.float64
-) -> Dataset:
+    :param inputs_shape: The shape of an input.
+    :param outputs_shape: The shape of an output.
+    :param dtype: The dtype of the tensors.
+    :return: Random tensors with points of the specified shapes, and dtype `tf.float64`.
+    :raise ValueError (or InvalidArgumentError): If ``inputs_shape`` and ``outputs_shape`` have
+        unequal shape in any but their last dimension.
     """
-    :param query_point_shape: The shape of query points.
-    :param observation_shape: The shape of observations.
-    :return: A dataset with points of the specified shapes, and dtype `tf.float64`.
-    """
-    qp = tf.random.uniform(query_point_shape, dtype=dtype)
-    obs = tf.random.uniform(observation_shape, dtype=dtype)
-    return Dataset(qp, obs)
+    if inputs_shape[:-1] != outputs_shape[:-1]:
+        raise ValueError(
+            f"Leading shapes of inputs_shape and outputs_shape must match. Got shapes"
+            f" {inputs_shape}, {outputs_shape}."
+        )
+    inputs = tf.random.uniform(inputs_shape, dtype=dtype)
+    outputs = tf.random.uniform(outputs_shape, dtype=dtype)
+    return inputs, outputs
