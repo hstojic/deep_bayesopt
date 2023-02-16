@@ -42,7 +42,6 @@ hydra-core = "^1.3.1"
 hydra-zen = "^0.9.1"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^5.0.0"
 jupytext = "^1.14.4"
 mypy = "^0.991"
 isort = "^5.11.4"
@@ -51,11 +50,10 @@ pytest = "^7.2.0"
 taskipy = "^1.10.3"
 pytest-black = "^0.3.12"
 pytest-cov = "^4.0.0"
-pytest-flake8 = "^1.1.1"
 pytest-isort = "^3.1.0"
 pytest-mypy = "^0.10.3"
-Flake8-pyproject = "^1.2.2"
-ruff = "^0.0.246"
+ruff = "^0.0.244"
+pytest-ruff = "^0.0.3"
 
 [tool.black]
 line-length = 100
@@ -69,22 +67,17 @@ skip_gitignore = true
 skip_glob = "notebooks"
 line_length = 100
 
-[tool.flake8]
-max-line-length = 100
-ignore = ['E203', 'W503']
-exclude = '.git,__pycache__,.mypy_cache,.pytest_cache,.venv'
-
 [tool.ruff]
 line-length = 100
-exclude = '.git,__pycache__,.mypy_cache,.pytest_cache,.venv,.ruff_cache,'
+exclude = [".git","__pycache__",".mypy_cache",".pytest_cache",".venv",".ruff_cache"]
 target-version = "py310"
 
 [tool.taskipy.tasks]
 tests = "pytest --mypy --durations 6"
 quicktests = "pytest -x --ff -rN -Wignore --ignore-glob=tests/integration/*"
 mypy = "mypy"
-check_format = "pytest -v --black --flake8 --isort -m 'black or flake8 or isort'"
-format = "black . && flake8 . && isort ."
+check_format = "pytest -v --black --ruff --isort -m 'black or ruff or isort'"
+format = "black . && ruff check . && isort ."
 ruff = "ruff check . --fix"
 
 [tool.mypy]

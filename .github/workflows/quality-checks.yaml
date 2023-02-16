@@ -50,7 +50,7 @@ jobs:
         path: ~/.cache/pypoetry/virtualenvs
         key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
     - run: poetry install
-    - run: poetry run task format
+    - run: poetry run task check_format
 
   tests:
     runs-on: ubuntu-latest
