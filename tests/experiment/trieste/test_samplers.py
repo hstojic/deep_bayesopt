@@ -26,8 +26,8 @@ from trieste.types import TensorType
 
 from experiment.trieste.sampler import DropoutTrajectorySampler, dropout_trajectory
 from tests.util.functions import quadratic
-from tests.util.misc import empty_dataset, random_seed
-from tests.util.models import trieste_montecarlo_dropout_test
+from tests.util.misc import random_seed
+from tests.util.trieste import empty_dataset, trieste_montecarlo_dropout_test
 
 _RATE = 0.1
 

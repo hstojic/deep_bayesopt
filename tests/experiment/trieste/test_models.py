@@ -23,8 +23,9 @@ from trieste.models.optimizer import KerasOptimizer
 
 from experiment.trieste import TriesteMonteCarloDropout
 from tests.util.functions import fnc_2sin_x_over_3
-from tests.util.misc import ShapeLike, empty_dataset, random_dataset, random_seed
-from tests.util.models import montecarlo_dropout_test, trieste_montecarlo_dropout_test
+from tests.util.misc import ShapeLike, random_seed
+from tests.util.models import montecarlo_dropout_test
+from tests.util.trieste import empty_dataset, random_dataset, trieste_montecarlo_dropout_test
 
 
 @pytest.fixture(name="rate", params=[0.1])

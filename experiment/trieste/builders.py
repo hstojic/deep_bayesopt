@@ -17,7 +17,7 @@ from typing import Union
 import tensorflow as tf
 from trieste.data import Dataset
 
-from uanets.models.mc_dropout import MonteCarloDropout
+from unflow.models import MonteCarloDropout
 
 
 def build_montecarlo_dropout(

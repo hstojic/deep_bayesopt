@@ -18,8 +18,8 @@ import pytest
 import tensorflow as tf
 
 from experiment.trieste import build_montecarlo_dropout
-from tests.util.misc import empty_dataset
-from uanets.models.mc_dropout import MonteCarloDropout
+from tests.util.trieste import empty_dataset
+from unflow.models import MonteCarloDropout
 
 
 @pytest.mark.parametrize("units, activation", [(10, "relu"), (50, tf.keras.activations.tanh)])

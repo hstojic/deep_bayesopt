@@ -19,10 +19,10 @@ import numpy.testing as npt
 import pytest
 import tensorflow as tf
 from tensorflow.python.framework.errors_impl import InvalidArgumentError
-from uanets.models import MonteCarloDropout
 
 from tests.util.misc import inputs_outputs_spec, random_inputs_outputs
-from tests.util.models import mc_dropout_model
+from tests.util.models import montecarlo_dropout_test
+from unflow.models import MonteCarloDropout
 
 
 @pytest.fixture(name="rate", params=[0.1])
@@ -159,7 +159,7 @@ def test_mc_dropout_model_predict_call_shape(
 ) -> None:
     inputs, outputs = random_inputs_outputs(input_shape, output_shape)
 
-    model = mc_dropout_model(inputs, outputs, rate)
+    model = montecarlo_dropout_test(inputs, outputs, rate)
     predicted_means, predicted_vars = model.predict_mean_and_var(inputs, 100)
 
     assert tf.is_tensor(predicted_means)
@@ -181,7 +181,7 @@ def test_mc_dropout_model_sample_call_shape(
 ) -> None:
     inputs, outputs = random_inputs_outputs(input_shape, output_shape)
 
-    model = mc_dropout_model(inputs, outputs, rate)
+    model = montecarlo_dropout_test(inputs, outputs, rate)
 
     samples = model.sample(inputs, num_samples)
 
