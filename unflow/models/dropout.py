@@ -18,8 +18,8 @@ import numpy as np
 import tensorflow as tf
 from check_shapes import inherit_check_shapes
 
-from uanets.models.interface import ApproximateBayesianModel
-from uanets.types import MeanAndVariance
+from unflow.models.interface import ApproximateBayesianModel
+from unflow.types import MeanAndVariance
 
 
 class MonteCarloDropout(ApproximateBayesianModel):
