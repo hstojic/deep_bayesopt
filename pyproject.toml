@@ -32,7 +32,7 @@ testpaths = [
 python = "~3.10"
 trieste = "^1.0.0"
 tensorflow = "~2.8.2"
-numpy = "^1.23.5"
+tensorflow-probability = "^0.14.0"
 gpflux = "^0.3.1"
 gpflow = "^2.7.0"
 ray = "^2.2.0"
@@ -81,7 +81,7 @@ format = "black . && ruff check . && isort ."
 ruff = "ruff check . --fix"
 
 [tool.mypy]
-files = "experiments,unflow,tests"
+files = "experiment,unflow,tests"
 ignore_missing_imports = true
 warn_redundant_casts = true
 warn_unused_ignores = true

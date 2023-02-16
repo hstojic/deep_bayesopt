@@ -180,9 +180,6 @@ class MonteCarloDropout(ApproximateBayesianModel):
         :param seed:
             The seed to produce deterministic results - unused here.
         """
-        # if num_samples is None:
-        #     raise TypeError("num_samples must be set for this method")
-
         if num_samples is None:
             num_samples = 1
 

@@ -17,7 +17,7 @@ import tensorflow as tf
 from unflow.models.dropout import MonteCarloDropout
 
 
-def mc_dropout_model(
+def montecarlo_dropout_test(
     inputs: tf.Tensor,
     outputs: tf.Tensor,
     rate: float = 0.1,

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 
 from tests.util.misc import random_seed
-from tests.util.models import mc_dropout_model
+from tests.util.models import montecarlo_dropout_test
 
 
 def _power_function(x: tf.Tensor, error=True) -> tf.Tensor:
@@ -79,7 +79,7 @@ def test_mc_dropout_predictions_close_to_actuals(
     inputs = tf.sort(tf.random.uniform(shape=[num_points, 1], minval=-4, maxval=4), 0)
     outputs = _power_function(inputs)
 
-    model = mc_dropout_model(
+    model = montecarlo_dropout_test(
         inputs,
         outputs,
         rate=rate,

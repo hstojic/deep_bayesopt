@@ -97,7 +97,7 @@ def inputs_outputs_spec(
     :param inputs_shape: The shape of an input without the first dimension.
     :param outputs_shape: The shape of an output without the first dimension.
     :param dtype: The dtype of the tensors.
-    :return: An empty dataset with points of the specified shapes, and dtype `tf.float64`.
+    :return: Tensor specification for inputs and outputs.
     """
     inputs = tf.TensorSpec(tf.TensorShape([0]) + inputs_shape, dtype)
     outputs = tf.TensorSpec(tf.TensorShape([0]) + outputs_shape, dtype)
