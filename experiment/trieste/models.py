@@ -20,8 +20,8 @@ from trieste.data import Dataset
 from trieste.models.interfaces import TrainableProbabilisticModel
 from trieste.models.keras.interface import KerasPredictor
 from trieste.models.optimizer import KerasOptimizer
-from trieste.types import TensorType
 from trieste.models.utils import write_summary_data_based_metrics
+from trieste.types import TensorType
 
 from unflow.models import MonteCarloDropout
 
@@ -147,6 +147,15 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
             ``query_points``.
         """
         return self._model.predict_mean_and_var(x=query_points, num_samples=self._num_passes)
+
+    def predict_y(self, query_points: TensorType) -> Tuple[TensorType, TensorType]:
+        """
+        For some reason mypy considers this an abstract class and causes issues, so declaring it
+        here to make mypy happy.
+        """
+        raise NotImplementedError(
+            f"Model {self!r} does not support predicting observations, just the latent function"
+        )
 
     def optimize(self, dataset: Dataset) -> None:
         """

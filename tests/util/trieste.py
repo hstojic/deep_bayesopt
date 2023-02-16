@@ -24,8 +24,14 @@ from tests.util.models import montecarlo_dropout_test
 from unflow.models.dropout import MonteCarloDropout
 
 
-def trieste_montecarlo_dropout_test(data: Dataset, rate: float = 0.1) -> Tuple[TriesteMonteCarloDropout, MonteCarloDropout, KerasOptimizer]:
-
+def trieste_montecarlo_dropout_test(
+    data: Dataset, rate: float = 0.1
+) -> Tuple[TriesteMonteCarloDropout, MonteCarloDropout, KerasOptimizer]:
+    """
+    :param data: Trieste dataset.
+    :param rate: The rate for dropout layers.
+    :return: A TriesteMonteCarloDropout model.
+    """
     model = montecarlo_dropout_test(data.query_points, data.observations, rate=rate)
 
     optimizer = tf.keras.optimizers.Adam(0.01)
@@ -35,7 +41,6 @@ def trieste_montecarlo_dropout_test(data: Dataset, rate: float = 0.1) -> Tuple[T
         "verbose": 0,
     }
     trieste_optimizer = KerasOptimizer(optimizer, fit_args)
-
     trieste_model = TriesteMonteCarloDropout(model=model, optimizer=trieste_optimizer)
 
     return trieste_model, model, trieste_optimizer

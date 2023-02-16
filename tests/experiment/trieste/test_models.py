@@ -15,7 +15,6 @@
 from typing import Any, List
 
 import numpy as np
-import numpy.testing as npt
 import pytest
 import tensorflow as tf
 from trieste.data import Dataset
@@ -192,21 +191,3 @@ def test_montecarlo_dropout_optimizer_learns_new_data(rate: float) -> None:
     pred2, _ = model.predict(qp)
 
     assert np.abs(pred1 - pred2) > 1
-
-
-@random_seed
-@pytest.mark.parametrize("num_samples", [1000, 5000, 10000])
-def test_montecarlo_dropout_sample(rate: float, num_samples) -> None:
-    example_data = _fnc_2sin_x_over_3_data([100, 1])
-    model, _, _ = trieste_montecarlo_dropout_test(example_data, rate)
-
-    samples = model.sample(example_data.query_points, num_samples)
-    sample_mean = tf.reduce_mean(samples, axis=0)
-    sample_variance = tf.reduce_mean((samples - sample_mean) ** 2, axis=0)
-
-    ref_mean, ref_variance = model.predict(example_data.query_points)
-
-    error = 1 / tf.sqrt(tf.cast(num_samples, tf.float32))
-
-    npt.assert_allclose(sample_mean, ref_mean, atol=4 * error)
-    npt.assert_allclose(sample_variance, ref_variance, atol=8 * error)

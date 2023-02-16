@@ -1294,7 +1294,7 @@ wrapt = ">=1.11.0"
 
 [[package]]
 name = "tensorflow-probability"
-version = "0.18.0"
+version = "0.14.1"
 description = "Probabilistic modeling and statistical inference in TensorFlow"
 category = "main"
 optional = false
@@ -1445,7 +1445,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.10"
-content-hash = "d73ebc7d4c52bc52367f503210c8ae86a2091970d14f7650e2e1631b0a89d255"
+content-hash = "de283a9cf0cedf3dc782c18638b20dac041dd5d6d11419b7a94b45750a60707e"
 
 [metadata.files]
 absl-py = [
@@ -2808,7 +2808,7 @@ tensorflow-macos = [
     {file = "tensorflow_macos-2.8.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:7f522e7b478f2bbd1707632edb0942e22df7878142c60316876fd0269a80d1e7"},
 ]
 tensorflow-probability = [
-    {file = "tensorflow_probability-0.18.0-py2.py3-none-any.whl", hash = "sha256:80d57e7792c78586f12255ab4a7c359b7e86bc06d487fd629119d9e650624a18"},
+    {file = "tensorflow_probability-0.14.1-py2.py3-none-any.whl", hash = "sha256:c25d80d492ef7cc1d48b201982f11c913a1eecb5e8cb5cd87202a313b56a6017"},
 ]
 termcolor = [
     {file = "termcolor-2.2.0-py3-none-any.whl", hash = "sha256:91ddd848e7251200eac969846cbae2dacd7d71c2871e92733289e7e3666f48e7"},
