@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: '3.10'
     - uses: Gr1N/setup-poetry@v7
       with:
         poetry-version: 1.1.14
@@ -41,7 +41,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: '3.10'
     - uses: Gr1N/setup-poetry@v7
       with:
         poetry-version: 1.1.14
@@ -50,7 +50,7 @@ jobs:
         path: ~/.cache/pypoetry/virtualenvs
         key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
     - run: poetry install
-    - run: poetry run task format
+    - run: poetry run task check_format
 
   tests:
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: '3.10'
     - uses: Gr1N/setup-poetry@v7
       with:
         poetry-version: 1.1.14

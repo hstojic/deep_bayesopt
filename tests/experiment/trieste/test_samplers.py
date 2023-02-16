@@ -24,10 +24,11 @@ from trieste.data import Dataset
 from trieste.models.interfaces import ProbabilisticModel
 from trieste.types import TensorType
 
+from experiment.trieste import TriesteMonteCarloDropout
 from experiment.trieste.sampler import DropoutTrajectorySampler, dropout_trajectory
 from tests.util.functions import quadratic
-from tests.util.misc import empty_dataset, random_seed
-from tests.util.models import trieste_montecarlo_dropout_test
+from tests.util.misc import random_seed
+from tests.util.trieste import empty_dataset, trieste_montecarlo_dropout_test
 
 _RATE = 0.1
 
@@ -331,7 +332,7 @@ def test_dropout_trajectory_sampler_update_trajectory_updates_and_doesnt_retrace
     for _ in range(3):
         x_train = tf.random.uniform([num_data, dim])  # [N, d]
         new_dataset = Dataset(x_train, quadratic(x_train))
-        model = cast(ProbabilisticModel, trajectory_sampler._model)
+        model = cast(TriesteMonteCarloDropout, trajectory_sampler._model)
         old_weights = model.model.get_weights()
         model.optimize(new_dataset)
 

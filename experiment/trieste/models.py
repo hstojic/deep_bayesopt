@@ -20,9 +20,10 @@ from trieste.data import Dataset
 from trieste.models.interfaces import TrainableProbabilisticModel
 from trieste.models.keras.interface import KerasPredictor
 from trieste.models.optimizer import KerasOptimizer
+from trieste.models.utils import write_summary_data_based_metrics
 from trieste.types import TensorType
 
-from uanets.models.mc_dropout import MonteCarloDropout
+from unflow.models import MonteCarloDropout
 
 
 class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
@@ -77,7 +78,11 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
             number of epochs across BO iterations and use this number as initial_epoch. This is
             essential to allow monitoring of model training across BO iterations.
         :raise ValueError: If ``model`` is not an instance of
+<<<<<<< HEAD
             :class:`~uanets.models.MonteCarloDropout`.
+=======
+            :class:`~unflow.models.MonteCarloDropout`.
+>>>>>>> origin/main
         """
         super().__init__(optimizer)
 
@@ -125,6 +130,40 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
         """ " Returns compiled Keras model."""
         return self._model
 
+<<<<<<< HEAD
+=======
+    def sample(self, query_points: TensorType, num_samples: int) -> TensorType:
+        """
+        Return ``num_samples`` samples at ``query_points``. We use the stochastic forward passes
+        to simulate ``num_samples`` samples for each point of ``query_points`` points.
+
+        :param query_points: The points at which to sample, with shape [..., N, D].
+        :param num_samples: The number of samples at each point.
+        :return: The samples, with shape [..., S, N, P], with S = num_samples and
+            P is the number of outputs.
+        """
+        return self._model.sample(x=query_points, num_samples=num_samples)
+
+    def predict(self, query_points: TensorType) -> Tuple[TensorType, TensorType]:
+        r"""
+        Returns mean and variance of the predictions, based on ``num_passes`` forward passes.
+
+        :param query_points: The points at which to make predictions.
+        :return: The predicted mean and variance of the observations at the specified
+            ``query_points``.
+        """
+        return self._model.predict_mean_and_var(x=query_points, num_samples=self._num_passes)
+
+    def predict_y(self, query_points: TensorType) -> Tuple[TensorType, TensorType]:
+        """
+        For some reason mypy considers this an abstract class and causes issues, so declaring it
+        here to make mypy happy.
+        """
+        raise NotImplementedError(
+            f"Model {self!r} does not support predicting observations, just the latent function"
+        )
+
+>>>>>>> origin/main
     def optimize(self, dataset: Dataset) -> None:
         """
         Optimize the underlying Keras model with the specified ``dataset``.
@@ -171,6 +210,7 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
         """
         pass
 
+<<<<<<< HEAD
     def sample(self, query_points: TensorType, num_samples: int) -> TensorType:
         """
         Return ``num_samples`` samples at ``query_points``. We use the stochastic forward passes
@@ -225,6 +265,8 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
         )
         return predicted_means, predicted_vars
 
+=======
+>>>>>>> origin/main
     def log(self, dataset: Optional[Dataset] = None) -> None:
         """
         Log model training information at a given optimization step to the Tensorboard.
@@ -234,9 +276,12 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
         data based metrics, such as root mean square error between predictions and observations,
         and several others.
 
+<<<<<<< HEAD
         We do not log statistics of individual models in the ensemble unless specifically switched
         on with ``trieste.logging.set_summary_filter(lambda name: True)``.
 
+=======
+>>>>>>> origin/main
         For custom logs user will need to subclass the model and overwrite this method.
 
         :param dataset: Optional data that can be used to log additional data-based model
@@ -253,6 +298,7 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
                     logging.scalar(f"{k}/min", lambda: tf.reduce_min(v))
                     logging.scalar(f"{k}/max", lambda: tf.reduce_max(v))
                 if dataset:
+<<<<<<< HEAD
                     predict = self.predict(dataset.query_points)
                     # training accuracy
                     diffs = tf.cast(dataset.observations, predict[0].dtype) - predict[0]
@@ -278,3 +324,8 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
                     # data stats
                     empirical_variance = tf.math.reduce_variance(dataset.observations)
                     logging.scalar("variance/empirical", empirical_variance)
+=======
+                    write_summary_data_based_metrics(
+                        dataset=dataset, model=self, prefix="training_"
+                    )
+>>>>>>> origin/main
