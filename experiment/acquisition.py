@@ -14,23 +14,23 @@
 
 from typing import Optional
 
-import trieste
+from trieste.acquisition import ExpectedImprovement, ParallelContinuousThompsonSampling
 from trieste.acquisition.optimizer import (
+    AcquisitionOptimizer,
     automatic_optimizer_selector,
     generate_continuous_optimizer,
-    AcquisitionOptimizer,
 )
 from trieste.acquisition.rule import (
     DiscreteThompsonSampling,
     EfficientGlobalOptimization,
     RandomSampling,
 )
-from trieste.acquisition import ExpectedImprovement, ParallelContinuousThompsonSampling
-
 from trieste.acquisition.utils import split_acquisition_function_calls
 from trieste.observer import OBJECTIVE
 
-def _get_af_optimizer(split_size: Optional[int],
+
+def _get_af_optimizer(
+    split_size: Optional[int],
     num_init_points: Optional[int],
 ) -> AcquisitionOptimizer:
     optimizer = automatic_optimizer_selector
@@ -43,18 +43,30 @@ def _get_af_optimizer(split_size: Optional[int],
     return optimizer
 
 
-def build_random(batch_size: int, split_size: Optional[int],
-    num_init_points: Optional[int],) -> RandomSampling:
+def build_random(
+    batch_size: int,
+    split_size: Optional[int],
+    num_init_points: Optional[int],
+) -> RandomSampling:
     return RandomSampling(num_query_points=batch_size)
 
 
-def build_discrete_ts(batch_size: int, split_size: Optional[int],
-    num_init_points: Optional[int],) -> DiscreteThompsonSampling:
+def build_discrete_ts(
+    batch_size: int,
+    split_size: Optional[int],
+    num_init_points: Optional[int],
+) -> DiscreteThompsonSampling:
     return DiscreteThompsonSampling(
-        num_search_space_samples=5000, num_query_points=batch_size,)
+        num_search_space_samples=5000,
+        num_query_points=batch_size,
+    )
 
-def build_cont_ts(batch_size: int, split_size: Optional[int],
-    num_init_points: Optional[int],) -> ParallelContinuousThompsonSampling:
+
+def build_cont_ts(
+    batch_size: int,
+    split_size: Optional[int],
+    num_init_points: Optional[int],
+) -> EfficientGlobalOptimization:
     optimizer = _get_af_optimizer(split_size, num_init_points)
     return EfficientGlobalOptimization(
         optimizer=optimizer,
@@ -62,8 +74,12 @@ def build_cont_ts(batch_size: int, split_size: Optional[int],
         builder=ParallelContinuousThompsonSampling().using(OBJECTIVE),
     )
 
-def build_ei(batch_size: int, split_size: Optional[int],
-    num_init_points: Optional[int],) -> EfficientGlobalOptimization:
+
+def build_ei(
+    batch_size: int,
+    split_size: Optional[int],
+    num_init_points: Optional[int],
+) -> EfficientGlobalOptimization:
     optimizer = _get_af_optimizer(split_size, num_init_points)
     return EfficientGlobalOptimization(
         optimizer=optimizer,

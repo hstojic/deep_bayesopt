@@ -19,7 +19,6 @@ from typing import Any, Callable, Optional, Sequence, Tuple, TypeVar, Union, cas
 
 import numpy as np
 import tensorflow as tf
-from trieste.data import Dataset
 
 ShapeLike = Union[tf.TensorShape, Sequence[int]]
 """ Type alias for types that can represent tensor shapes. """

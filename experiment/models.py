@@ -14,26 +14,35 @@
 
 import gpflow
 import tensorflow as tf
-
-from trieste.models import build_vanilla_deep_gp, DeepGaussianProcess, build_gpr, GaussianProcessRegression, build_keras_ensemble, DeepEnsemble, Optimizer, KerasOptimizer, build_svgp, SparseVariational
-
-
 from trieste.data import Dataset
+from trieste.models.gpflow import (
+    ConditionalImprovementReduction, GaussianProcessRegression, build_gpr,
+    build_svgp, SparseVariational,
+)
+from trieste.models.keras import DeepEnsemble, build_keras_ensemble
+from trieste.models.gpflux import DeepGaussianProcess, build_vanilla_deep_gp
+from trieste.models.optimizer import KerasOptimizer, Optimizer
 from trieste.space import SearchSpace
 
 from experiment.trieste import TriesteMonteCarloDropout, build_montecarlo_dropout
 
 
-
-def build_dgp(data: Dataset, search_space: SearchSpace) -> DeepGaussianProcess:
+def build_trieste_dgp(data: Dataset, search_space: SearchSpace) -> DeepGaussianProcess:
     """"""
-    num_layers=2
-    num_inducing=200
-    trainable_likelihood = False
+    num_layers = 2
+    num_inducing = 200
+    trainable_likelihood = True
     likelihood_variance = 1e-3
 
-    model = build_vanilla_deep_gp(data, search_space, num_layers=num_layers, num_inducing=num_inducing, likelihood_variance = likelihood_variance, trainable_likelihood=trainable_likelihood)
-   
+    model = build_vanilla_deep_gp(
+        data,
+        search_space,
+        num_layers=num_layers,
+        num_inducing_points=num_inducing,
+        likelihood_variance=likelihood_variance,
+        trainable_likelihood=trainable_likelihood,
+    )
+
     epochs = 400
     batch_size = 1000
 
@@ -46,100 +55,114 @@ def build_dgp(data: Dataset, search_space: SearchSpace) -> DeepGaussianProcess:
     fit_args = {
         "batch_size": batch_size,
         "epochs": epochs,
-        "callbacks": [tf.keras.callbacks.LearningRateScheduler(scheduler)]
+        "callbacks": [tf.keras.callbacks.LearningRateScheduler(scheduler)],
         "verbose": 0,
         "shuffle": False,
     }
     optimizer = KerasOptimizer(tf.optimizers.Adam(0.005), fit_args)
 
     return DeepGaussianProcess(
-        model = model,
-        optimizer = optimizer,
-        num_rff_features = 1000,
-        continuous_optimisation = True,
+        model=model,
+        optimizer=optimizer,
+        num_rff_features=1000,
+        continuous_optimisation=True,
     )
 
 
-def build_svgp(data: Dataset, search_space: SearchSpace) -> SparseVariational:
+def build_trieste_svgp(data: Dataset, search_space: SearchSpace) -> SparseVariational:
     """"""
-    num_inducing_points=200
+    num_inducing_points = 200
     trainable_likelihood = False
     likelihood_variance = None
 
-    model = build_svgp(data, search_space, likelihood_variance = likelihood_variance, trainable_likelihood=trainable_likelihood, num_inducing_points=num_inducing_points)
+    model = build_svgp(
+        data,
+        search_space,
+        likelihood_variance=likelihood_variance,
+        trainable_likelihood=trainable_likelihood,
+        num_inducing_points=num_inducing_points,
+    )
     optimizer = Optimizer(gpflow.optimizers.Scipy(), {"options": dict(maxiter=1000)}, compile=True)
 
     return SparseVariational(
-        model = model,
+        model=model,
         optimizer=optimizer,
-        num_rff_features = 1000,
+        num_rff_features=1000,
         inducing_point_selector=ConditionalImprovementReduction(),
     )
 
 
-def build_gpr(data: Dataset, search_space: SearchSpace) -> GaussianProcessRegression:
+def build_trieste_gpr(data: Dataset, search_space: SearchSpace) -> GaussianProcessRegression:
     """"""
     gpflow.config.set_default_jitter(1e-5)
     trainable_likelihood = False
     likelihood_variance = None
 
-    model = build_gpr(data, search_space, likelihood_variance = likelihood_variance, trainable_likelihood=trainable_likelihood)
+    model = build_gpr(
+        data,
+        search_space,
+        likelihood_variance=likelihood_variance,
+        trainable_likelihood=trainable_likelihood,
+    )
     optimizer = Optimizer(gpflow.optimizers.Scipy(), {"options": dict(maxiter=1000)}, compile=True)
 
     return GaussianProcessRegression(
-        model = model,
+        model=model,
         optimizer=optimizer,
-        num_kernel_samples = 100,
-        num_rff_features = 1000,
-        use_decoupled_sampler = True,
+        num_kernel_samples=100,
+        num_rff_features=1000,
+        use_decoupled_sampler=True,
     )
 
 
-def build_deep_ensemble(data: Dataset, search_space: SearchSpace) -> DeepEnsemble:
+def build_trieste_deep_ensemble(data: Dataset, search_space: SearchSpace) -> DeepEnsemble:
     """"""
     model = build_keras_ensemble(data, 5, 3, 25, "selu")
     fit_args = {
         "batch_size": 20,
         "epochs": 200,
         "callbacks": [
-            tf.keras.callbacks.EarlyStopping(
-                monitor="loss", patience=25, restore_best_weights=True
-            )
+            tf.keras.callbacks.EarlyStopping(monitor="loss", patience=25, restore_best_weights=True)
         ],
         "verbose": 0,
     }
     optimizer = KerasOptimizer(tf.keras.optimizers.Adam(0.01), fit_args)
 
     return DeepEnsemble(
-        model = model,
+        model=model,
         optimizer=optimizer,
-        bootstrap = True,
-        diversify = False,
-        continuous_optimisation = True,
+        bootstrap=True,
+        diversify=False,
+        continuous_optimisation=True,
     )
 
 
-def build_mc_dropout(data: Dataset, search_space: SearchSpace) -> TriesteMonteCarloDropout:
+def build_trieste_mc_dropout(data: Dataset, search_space: SearchSpace) -> TriesteMonteCarloDropout:
     """"""
     num_hidden_layers = 5
     units = 300
     activation = "relu"
+    rate = 0.1
+    num_passes = 100
 
     model = build_montecarlo_dropout(data, num_hidden_layers, units, activation, rate)
-    optimizer = KerasOptimizer(tf.keras.optimizers.Adam(0.01), fit_args={
-        "batch_size": 20,
-        "epochs": 200,
-        "callbacks": [
-            tf.keras.callbacks.EarlyStopping(
-                monitor="loss", patience=25, restore_best_weights=True
-            )
-        ],
-        "verbose": 0,
-    })
+    optimizer = KerasOptimizer(
+        tf.keras.optimizers.Adam(0.01),
+        fit_args={
+            "batch_size": 20,
+            "epochs": 200,
+            "callbacks": [
+                tf.keras.callbacks.EarlyStopping(
+                    monitor="loss", patience=25, restore_best_weights=True
+                )
+            ],
+            "verbose": 0,
+        },
+    )
 
     return TriesteMonteCarloDropout(
-        model = model,
+        model=model,
         optimizer=optimizer,
-        num_passes = 100,
-        continuous_optimisation = True,
+        num_passes=num_passes,
+        continuous_optimisation=True,
     )
