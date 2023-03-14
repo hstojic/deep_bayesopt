@@ -78,11 +78,7 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
             number of epochs across BO iterations and use this number as initial_epoch. This is
             essential to allow monitoring of model training across BO iterations.
         :raise ValueError: If ``model`` is not an instance of
-<<<<<<< HEAD
-            :class:`~uanets.models.MonteCarloDropout`.
-=======
             :class:`~unflow.models.MonteCarloDropout`.
->>>>>>> origin/main
         """
         super().__init__(optimizer)
 
@@ -130,8 +126,6 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
         """ " Returns compiled Keras model."""
         return self._model
 
-<<<<<<< HEAD
-=======
     def sample(self, query_points: TensorType, num_samples: int) -> TensorType:
         """
         Return ``num_samples`` samples at ``query_points``. We use the stochastic forward passes
@@ -163,7 +157,6 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
             f"Model {self!r} does not support predicting observations, just the latent function"
         )
 
->>>>>>> origin/main
     def optimize(self, dataset: Dataset) -> None:
         """
         Optimize the underlying Keras model with the specified ``dataset``.
@@ -210,63 +203,6 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
         """
         pass
 
-<<<<<<< HEAD
-    def sample(self, query_points: TensorType, num_samples: int) -> TensorType:
-        """
-        Return ``num_samples`` samples at ``query_points``. We use the stochastic forward passes
-        to simulate ``num_samples`` samples for each point of ``query_points`` points.
-
-        :param query_points: The points at which to sample, with shape [..., N, D].
-        :param num_samples: The number of samples at each point.
-        :return: The samples, with shape [..., S, N].
-        """
-        return tf.stack(
-            [self.model(query_points, training=True) for _ in range(num_samples)], axis=0
-        )
-
-    def predict(self, query_points: TensorType) -> Tuple[TensorType, TensorType]:
-        r"""
-        Returns mean and variance of the Monte Carlo Dropout.
-
-        Following <cite data-cite="gal2015simple"/>, we make T stochastic forward passes
-        through the trained network of L hidden layers M_l and average the results to derive
-        the mean and variance. These are respectively given by
-
-        .. math:: \mathbb{E}_{q\left(\mathbf{y}^{*} \mid \mathbf{x}^{*}\right)}
-            \left(\mathbf{y}^{*}\right) \approx \frac{1}{T} \sum_{t=1}^{T}
-            \widehat{\mathbf{y}}^{*}\left(\mathrm{x}^{*}, \widehat{\mathbf{M}}_{1}^{t},
-            \ldots, \widehat{\mathbf{M}}_{L}^{t}\right)
-
-        .. math:: \frac{1}{T} \operatorname{Var}_{q\left(\mathbf{y}^{*} \mid \mathbf{x}^{*}\right)}
-            \left(\mathbf{y}^{*}\right) \approx\sum_{t=1}^{T}
-            \widehat{\mathbf{y}}^{*}\left(\mathbf{x}^{*},
-            \widehat{\mathbf{M}}_{1}^{t}, \ldots, \widehat{\mathbf{M}}_{L}^{t}\right)^{T}
-            \widehat{\mathbf{y}}^{*}\left(\mathbf{x}^{*}, \widehat{\mathbf{M}}_{1}^{t}, \ldots,
-            \widehat{\mathbf{M}}_{L}^{t}\right)-\mathbb{E}_{q\left(\mathbf{y}^{*} \mid
-            \mathbf{x}^{*}\right)}\left(\mathbf{y}^{*}\right)^{T} \mathbb{E}_{q\left(\mathbf{y}^{*}
-            \mid \mathbf{x}^{*}\right)}\left(\mathbf{y}^{*}\right)
-
-        :param query_points: The points at which to make predictions.
-        :return: The predicted mean and variance of the observations at the specified
-            ``query_points``.
-        """
-
-        stochastic_passes = tf.stack(
-            [self.model(query_points, training=True) for _ in range(self._num_passes)], axis=0
-        )
-        predicted_means = tf.math.reduce_mean(stochastic_passes, axis=0)
-
-        predicted_vars = tf.subtract(
-            tf.divide(
-                tf.reduce_sum(tf.math.multiply(stochastic_passes, stochastic_passes), axis=0),
-                self._num_passes,
-            ),
-            tf.math.square(predicted_means),
-        )
-        return predicted_means, predicted_vars
-
-=======
->>>>>>> origin/main
     def log(self, dataset: Optional[Dataset] = None) -> None:
         """
         Log model training information at a given optimization step to the Tensorboard.
@@ -276,12 +212,6 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
         data based metrics, such as root mean square error between predictions and observations,
         and several others.
 
-<<<<<<< HEAD
-        We do not log statistics of individual models in the ensemble unless specifically switched
-        on with ``trieste.logging.set_summary_filter(lambda name: True)``.
-
-=======
->>>>>>> origin/main
         For custom logs user will need to subclass the model and overwrite this method.
 
         :param dataset: Optional data that can be used to log additional data-based model
@@ -298,34 +228,6 @@ class TriesteMonteCarloDropout(KerasPredictor, TrainableProbabilisticModel):
                     logging.scalar(f"{k}/min", lambda: tf.reduce_min(v))
                     logging.scalar(f"{k}/max", lambda: tf.reduce_max(v))
                 if dataset:
-<<<<<<< HEAD
-                    predict = self.predict(dataset.query_points)
-                    # training accuracy
-                    diffs = tf.cast(dataset.observations, predict[0].dtype) - predict[0]
-                    z_residuals = diffs / tf.math.sqrt(predict[1])
-                    logging.histogram("accuracy/absolute_errors", tf.math.abs(diffs))
-                    logging.histogram("accuracy/z_residuals", z_residuals)
-                    logging.scalar(
-                        "accuracy/root_mean_square_error", tf.math.sqrt(tf.reduce_mean(diffs**2))
-                    )
-                    logging.scalar(
-                        "accuracy/mean_absolute_error", tf.reduce_mean(tf.math.abs(diffs))
-                    )
-                    logging.scalar("accuracy/z_residuals_std", tf.math.reduce_std(z_residuals))
-                    # training variance
-                    variance_error = predict[1] - diffs**2
-                    logging.histogram("variance/predict_variance", predict[1])
-                    logging.histogram("variance/variance_error", variance_error)
-                    logging.scalar("variance/predict_variance_mean", tf.reduce_mean(predict[1]))
-                    logging.scalar(
-                        "variance/root_mean_variance_error",
-                        tf.math.sqrt(tf.reduce_mean(variance_error**2)),
-                    )
-                    # data stats
-                    empirical_variance = tf.math.reduce_variance(dataset.observations)
-                    logging.scalar("variance/empirical", empirical_variance)
-=======
                     write_summary_data_based_metrics(
                         dataset=dataset, model=self, prefix="training_"
                     )
->>>>>>> origin/main
